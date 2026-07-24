@@ -7,6 +7,9 @@
   const watchCount = document.querySelector("#watchlist-count");
   const mobileMenu = document.querySelector("#mobile-menu");
   const scrim = document.querySelector("#sidebar-scrim");
+  const aiApplyDialog = document.querySelector("#ai-apply-dialog");
+  const aiApplyJob = document.querySelector("#ai-apply-job");
+  const aiApplySource = document.querySelector("#ai-apply-source");
   const STORAGE_KEY = "talent-radar-watchlist-v2";
 
   if (!data || !ui || !main) {
@@ -315,7 +318,6 @@
   }
 
   function renderHome() {
-    const selected = spotlights.find((item) => item.id === state.spotlight) || spotlights[0];
     const mapJobs = data.jobs
       .filter((job) => job.stream === "SAP" && job.applyStatus === "open" && job.sourceUrl)
       .filter(
@@ -325,7 +327,7 @@
       .filter(
         (job) => state.homeWorkMode === "all" || normaliseWorkMode(job.workMode) === state.homeWorkMode
       );
-    const visibleMapJobs = mapJobs.filter((job) => mapRegionMatchesJob(job, state.region));
+    const visibleMapJobs = mapJobs.filter((job) => regionMatchesJob(job, state.region));
     const regionOptions = feedRegions;
     const activeRegionLabel = regionOptions.find(([value]) => value === state.region)?.[1] || "All regions";
     const activeScope = [
@@ -343,13 +345,11 @@
             ? "Remote"
             : ""
     ].filter(Boolean);
-    const permanentCount = data.jobs.filter((job) => employmentTypeForJob(job) === "permanent").length;
-    const contractCount = data.jobs.filter((job) => employmentTypeForJob(job) === "contract").length;
     return `
       <section class="page home-page" data-page="overview">
         ${pageHeader({
-          title: "Regional opportunity view",
-          subtitle: "A high-level view of SAP talent opportunities across Australia and New Zealand."
+          title: "Opportunity map",
+          subtitle: "Explore verified SAP opportunities across Australia and New Zealand."
         })}
 
         <div class="map-filter-bar" aria-label="Map filters">
@@ -405,67 +405,15 @@
 
         <div class="explorer-grid">
           <div class="map-panel">
-            <div class="opportunity-count">
+            <button class="opportunity-count" type="button" data-home-total
+              aria-label="Open ${visibleMapJobs.length} filtered opportunities in the feed">
               <div><strong>${visibleMapJobs.length}</strong><span>${visibleMapJobs.length === 1 ? "opportunity" : "opportunities"}</span></div>
               <small>${esc(activeScope.join(" · "))}</small>
-            </div>
+            </button>
             <div class="map-glow" aria-hidden="true"></div>
             ${renderMap(mapJobs)}
           </div>
-
-          <aside class="spotlight-panel" aria-label="Market spotlight">
-            <h2 class="section-label">Market spotlight</h2>
-            <p class="section-kicker">Select a region to explore the strongest signals.</p>
-            <div class="spotlight-list">
-              ${spotlights.map((item) => renderSpotlight(item, selected.id)).join("")}
-            </div>
-          </aside>
         </div>
-
-        <footer class="home-footer">
-          <div class="metric-mini">
-            <span class="signal-icon">${icon("pulse")}</span>
-            <div><strong>3</strong><span>Hot market signals</span><small>Key role demand across regions</small></div>
-          </div>
-          <div class="metric-mini">
-            <span class="signal-icon">${icon("tag")}</span>
-            <div><strong>${data.meta.sapTaxonomyTagCount}</strong><span>SAP tags</span><small>Skills and technologies</small></div>
-          </div>
-          <div class="category-chips" aria-label="Coverage categories">
-            <button class="category-chip technical" type="button" data-group-filter="Technical">${icon("cube")}Technical</button>
-            <button class="category-chip functional" type="button" data-group-filter="Functional">${icon("settings")}Functional</button>
-            <button class="category-chip leadership" type="button" data-group-filter="Leadership">${icon("user")}Leadership</button>
-          </div>
-          <a class="text-link home-feed-link" href="#opportunities">View opportunity feed ${icon("arrow-right")}</a>
-        </footer>
-
-        <section class="employment-drilldowns" aria-labelledby="employment-drilldown-title">
-          <div class="employment-drilldown-copy">
-            <p class="panel-kicker">Explore by engagement</p>
-            <h2 id="employment-drilldown-title">Permanent or contract?</h2>
-            <p>Jump directly to roles where the source explicitly states the engagement type.</p>
-          </div>
-          <div class="employment-option-grid">
-            <button class="employment-option permanent" type="button" data-employment-filter="permanent">
-              <span class="employment-option-icon">${icon("briefcase")}</span>
-              <span>
-                <small>Long-term opportunities</small>
-                <strong>Permanent positions</strong>
-                <em>${permanentCount} verified ${permanentCount === 1 ? "role" : "roles"}</em>
-              </span>
-              ${icon("arrow-right")}
-            </button>
-            <button class="employment-option contract" type="button" data-employment-filter="contract">
-              <span class="employment-option-icon">${icon("clock")}</span>
-              <span>
-                <small>Projects and fixed terms</small>
-                <strong>Contract positions</strong>
-                <em>${contractCount} verified ${contractCount === 1 ? "role" : "roles"}</em>
-              </span>
-              ${icon("arrow-right")}
-            </button>
-          </div>
-        </section>
       </section>`;
   }
 
@@ -475,7 +423,7 @@
     const markers = mapRegions
       .map((item) => {
         const { x, y, labelX, labelY, width, lineX } = item.marker;
-        const count = mapJobs.filter((job) => mapRegionMatchesJob(job, item.region)).length;
+        const count = mapJobs.filter((job) => regionMatchesJob(job, item.region)).length;
         const isSelected = state.region === item.region;
         const isMuted = state.region !== "all" && !isSelected;
         const color =
@@ -499,6 +447,31 @@
           </g>`;
       })
       .join("");
+    const mobilePositions = {
+      perth: [1, 55],
+      adelaide: [27, 60],
+      melbourne: [36, 74],
+      canberra: [53, 65],
+      sydney: [58, 54],
+      brisbane: [60, 39],
+      "new-zealand": [69, 77],
+      "australia-wide": [17, 43]
+    };
+    const mobileMarkers = mapRegions
+      .map((item) => {
+        const count = mapJobs.filter((job) => regionMatchesJob(job, item.region)).length;
+        const isSelected = state.region === item.region;
+        const isMuted = state.region !== "all" && !isSelected;
+        const [left, top] = mobilePositions[item.region];
+        return `
+          <button class="mobile-map-marker ${item.tone} ${isSelected ? "active" : ""} ${isMuted ? "muted" : ""}"
+            type="button" style="left:${left}%;top:${top}%"
+            aria-label="Open ${esc(item.label)} in the feed, ${count} verified SAP ${count === 1 ? "role" : "roles"}"
+            data-map-region="${item.region}">
+            <span aria-hidden="true"></span>${esc(item.label)} <strong>${count}</strong>
+          </button>`;
+      })
+      .join("");
 
     return `
       <svg class="region-map ${state.region === "all" ? "" : "region-selected"}" viewBox="0 0 850 520" role="img"
@@ -515,7 +488,8 @@
         <path class="map-land map-australia" data-map-country="Australia" d="M431.0,393.4L427.4,398.3L429.7,403.7L433.1,408.2L435.5,413.9L436.0,419.4L439.8,423.5L445.5,426.2L451.2,426.0L454.5,421.5L459.0,418.5L462.4,413.2L464.5,407.6L465.3,401.6L465.4,395.4L458.3,394.1L452.8,395.9L447.2,397.7L439.3,396.3L434.3,393.9ZM352.3,332.9L342.2,333.0L347.6,336.5L353.1,334.8ZM278.5,40.5L282.1,47.1L286.6,43.0L281.6,39.7ZM411.3,47.5L407.9,41.2L404.7,34.5L400.3,39.3L398.3,46.8L395.6,52.2L398.0,57.6L395.1,63.1L393.3,69.6L394.2,76.1L394.7,82.2L393.1,91.3L392.6,96.8L390.6,103.8L387.4,110.3L383.1,115.5L377.1,115.8L371.8,112.6L368.3,108.2L363.2,105.3L357.3,103.4L353.4,98.8L347.8,95.8L342.7,93.5L338.2,89.9L333.7,85.9L329.4,82.3L332.7,75.4L335.3,69.7L334.7,63.7L340.3,62.7L345.4,52.2L341.1,47.5L338.2,53.2L333.2,50.7L327.2,50.7L322.0,47.8L315.8,47.3L309.4,45.8L304.0,41.4L296.7,38.7L291.2,39.3L298.2,41.9L299.9,47.5L295.1,50.7L287.2,51.3L281.2,52.4L276.8,55.9L273.5,60.7L271.3,66.0L269.0,71.1L265.4,76.7L269.4,81.5L263.9,82.9L257.6,81.4L252.7,84.5L249.7,77.8L245.9,73.1L240.3,69.3L235.7,73.9L230.3,71.7L229.9,77.9L223.8,78.7L223.2,84.2L217.4,85.9L213.2,89.9L213.9,95.7L216.6,100.5L210.5,100.0L204.8,98.2L204.4,104.0L206.8,109.4L204.0,114.3L200.8,108.4L197.7,101.2L193.7,106.4L189.1,111.8L189.9,119.6L187.5,124.7L183.5,129.8L180.4,135.8L175.6,140.0L168.4,142.9L161.9,144.5L153.1,147.1L147.2,148.5L141.8,151.7L136.0,151.7L130.4,152.6L124.1,156.4L119.7,160.3L115.1,163.6L109.2,167.3L106.1,173.1L104.4,166.9L100.7,172.0L100.4,177.8L100.4,183.4L98.1,188.8L96.7,195.0L98.3,200.3L100.7,206.0L105.1,214.2L104.7,220.1L99.6,217.1L98.0,211.5L98.5,217.2L100.5,222.8L96.8,218.4L99.8,226.2L103.2,232.2L104.3,239.7L108.5,246.5L111.9,253.7L112.8,260.7L113.4,266.6L115.3,273.7L118.2,279.6L121.2,286.7L121.1,292.8L120.5,300.0L118.9,306.4L113.4,306.2L113.1,312.6L119.4,317.1L123.9,321.5L129.5,323.9L136.1,324.4L141.7,324.9L150.6,320.8L156.6,317.5L162.4,313.2L168.5,311.2L174.9,310.5L181.1,309.9L186.9,310.3L195.6,310.7L201.9,310.9L207.2,307.2L209.9,301.6L216.6,298.6L222.0,295.4L228.8,291.6L238.0,291.7L243.7,291.2L251.6,288.8L260.9,284.4L267.4,283.5L273.4,282.9L280.3,283.2L286.7,282.6L295.4,288.1L301.1,287.5L306.0,290.2L312.0,291.2L316.8,294.6L317.5,302.0L322.6,303.9L325.3,309.3L328.2,314.3L329.2,320.6L334.6,323.5L336.7,317.1L340.0,312.4L345.3,309.0L349.7,305.2L353.2,299.7L355.7,305.5L352.9,310.3L350.9,316.5L350.1,323.0L344.8,326.9L350.9,325.6L355.2,320.7L357.0,315.0L361.2,319.9L360.8,327.9L365.8,330.4L372.1,336.1L376.2,343.9L375.0,349.7L380.0,355.7L384.3,360.3L390.5,362.1L396.0,363.3L402.5,364.5L407.7,367.0L413.0,369.1L421.1,365.5L427.0,362.5L432.6,364.6L437.9,367.9L442.8,370.4L450.2,368.0L455.9,362.6L461.0,359.2L472.3,357.5L477.9,357.3L482.7,354.3L483.0,346.1L484.4,340.5L485.5,334.0L489.4,326.6L492.1,321.0L493.6,315.6L497.0,311.1L498.9,304.8L502.6,298.8L507.2,295.3L510.5,288.5L514.6,281.2L515.6,274.9L517.1,266.0L518.8,258.0L521.5,250.3L521.2,242.9L519.2,237.2L516.4,230.3L516.0,219.6L515.0,213.8L512.9,207.3L509.4,201.6L505.2,197.9L501.3,192.5L495.6,189.4L491.7,182.1L491.5,174.9L485.9,172.5L480.3,173.3L477.7,165.2L475.8,159.6L471.9,154.1L471.0,148.4L466.2,145.1L460.7,141.5L456.7,137.0L449.9,134.8L445.2,131.7L443.5,126.1L441.9,119.7L441.7,112.6L440.2,107.0L435.8,102.4L435.4,96.7L433.4,89.7L433.6,83.3L426.9,77.9L421.1,76.7L416.2,71.6L415.6,65.3L414.3,58.3L412.1,52.8Z"></path>
         <path class="map-land map-new-zealand" data-map-country="New Zealand" d="M675.2,466.3L671.4,464.4L671.0,468.2L668.7,471.1L672.7,470.2L676.3,468.8ZM727.8,399.4L727.0,395.4L724.1,393.3L720.9,391.5L717.5,395.4L716.1,401.3L713.2,404.6L709.9,407.7L708.6,411.6L705.7,416.4L702.7,419.1L698.9,420.8L696.0,423.2L693.1,425.5L689.7,427.5L686.1,429.3L682.2,431.9L678.5,432.4L675.8,434.7L672.2,438.0L669.2,440.9L665.2,443.6L664.5,447.2L660.8,448.9L663.2,452.5L658.0,453.7L660.3,456.6L664.2,459.0L668.3,457.9L672.0,460.4L675.7,460.3L678.6,463.1L682.6,462.9L687.9,463.4L691.5,462.6L696.8,457.9L699.3,455.3L703.1,454.5L703.5,450.2L704.8,446.6L705.4,442.9L707.7,439.3L708.7,435.6L712.4,433.4L715.8,431.8L719.1,430.4L723.9,429.8L727.6,430.1L724.5,427.5L723.3,423.8L727.3,420.7L730.2,418.1L732.3,414.2L735.4,411.3L737.6,408.0L740.1,404.9L737.9,401.7L741.0,398.3L738.0,396.1L735.0,399.3L736.6,395.8L732.5,397.2L729.0,399.4ZM729.4,323.2L727.1,319.8L723.5,317.5L726.9,321.6L728.6,325.5L729.9,329.3L733.2,327.8L736.6,338.1L740.1,338.9L741.9,342.1L741.8,346.6L745.4,347.3L744.3,351.3L746.1,356.2L746.0,360.3L744.0,365.1L743.5,369.4L740.4,371.7L735.5,373.7L736.4,378.1L740.9,379.7L744.4,382.2L747.8,383.4L749.9,386.4L749.8,390.1L747.9,394.2L744.4,398.6L748.3,400.7L751.0,403.3L755.0,400.9L758.1,398.6L760.9,394.5L763.3,390.8L765.6,387.5L768.5,382.9L768.5,379.3L769.2,375.2L773.2,373.0L777.2,373.3L779.2,368.7L782.3,366.6L783.1,362.4L784.2,358.3L782.3,354.8L778.5,355.4L774.8,358.8L770.6,359.8L766.4,358.7L761.4,356.2L758.2,353.2L757.0,347.5L753.3,343.0L753.5,348.6L748.2,346.9L744.7,345.5L745.1,341.9L743.5,337.0L741.3,333.6L742.1,329.4L738.7,327.6L736.3,324.7L731.6,323.4Z"></path>
         ${markers}
-      </svg>`;
+      </svg>
+      <div class="mobile-map-labels" aria-label="Mobile map regions">${mobileMarkers}</div>`;
   }
 
   function renderSpotlight(item, selectedId) {
@@ -916,16 +890,23 @@
             <span class="job-fact">${icon("calendar")}${esc(job.postedLabel || displayDate)}</span>
             <span class="job-fact">${icon("external")}${esc(job.source)}</span>
           </div>
-          <p class="job-summary">${esc(job.summary)}</p>
-          <div class="job-tags">
-            <span class="job-tag ${job.stream === "Other" ? "other" : ""}">${esc(job.module)}</span>
-            ${(job.skills || []).slice(0, 4).map((skill) => `<span class="job-tag">${esc(skill)}</span>`).join("")}
+          <button class="secondary-action job-details-toggle" type="button" data-job-details
+            aria-expanded="false">${icon("chevron-down")}View job details</button>
+          <div class="job-detail-content">
+            <p class="job-summary">${esc(job.summary)}</p>
+            <div class="job-tags">
+              <span class="job-tag ${job.stream === "Other" ? "other" : ""}">${esc(job.module)}</span>
+              ${(job.skills || []).slice(0, 4).map((skill) => `<span class="job-tag">${esc(skill)}</span>`).join("")}
+            </div>
           </div>
         </div>
         <div class="job-actions">
           ${job.rate ? `<span class="job-rate">${esc(job.rate)}</span>` : ""}
-          <a class="primary-action" href="${esc(source.href)}" target="_blank" rel="noopener noreferrer">
-            ${esc(source.label)} ${icon("external")}
+          <button class="primary-action ai-apply-button" type="button" data-ai-apply="${esc(job.id)}">
+            ${icon("radar")}Apply with AI
+          </button>
+          <a class="secondary-action" href="${esc(source.href)}" target="_blank" rel="noopener noreferrer">
+            View original listing ${icon("external")}
           </a>
           <button class="secondary-action ${saved ? "saved" : ""}" type="button" data-watch-job="${esc(job.id)}">
             ${icon("bookmark")}${saved ? "Saved to watchlist" : "Save to watchlist"}
@@ -971,6 +952,28 @@
       label: "Search on SEEK",
       href: `https://www.seek.com.au/jobs?keywords=${keywords}`
     };
+  }
+
+  function openAiApplication(jobId) {
+    const job = data.jobs.find((item) => item.id === jobId);
+    if (!job || !aiApplyDialog || !aiApplyJob || !aiApplySource) return;
+    const source = sourceLink(job);
+    const employment = employmentTypeForJob(job);
+    aiApplyJob.innerHTML = `
+      <span class="ai-profile-chip">${icon("user")}Apply as Mahendra</span>
+      <h3>${esc(job.title)}</h3>
+      <p>${esc(job.company)} · ${esc(job.location)}</p>
+      <div>
+        <span>${esc(workModeLabels[normaliseWorkMode(job.workMode)])}</span>
+        ${
+          employment === "not-stated"
+            ? ""
+            : `<span>${esc(employment === "permanent" ? "Permanent" : employment === "contract" ? "Contract" : "Temporary")}</span>`
+        }
+      </div>`;
+    aiApplySource.href = source.href;
+    if (typeof aiApplyDialog.showModal === "function") aiApplyDialog.showModal();
+    else aiApplyDialog.setAttribute("open", "");
   }
 
   function formatRecordDate(value) {
@@ -1731,9 +1734,23 @@
         region: mapRegion.dataset.mapRegion,
         module: "all",
         group: "all",
-        workMode: "all",
+        workMode: state.homeWorkMode,
         source: "all",
-        employment: "all"
+        employment: state.homeEmployment
+      });
+      return;
+    }
+
+    if (event.target.closest("[data-home-total]")) {
+      setFeedRoute({
+        q: "",
+        category: "sap",
+        region: state.region,
+        module: "all",
+        group: "all",
+        workMode: state.homeWorkMode,
+        source: "all",
+        employment: state.homeEmployment
       });
       return;
     }
@@ -1800,6 +1817,21 @@
     const watch = event.target.closest("[data-watch-job]");
     if (watch) {
       toggleWatchlist(watch.dataset.watchJob);
+      return;
+    }
+
+    const jobDetails = event.target.closest("[data-job-details]");
+    if (jobDetails) {
+      const card = jobDetails.closest(".job-card");
+      const open = card ? card.classList.toggle("details-open") : false;
+      jobDetails.setAttribute("aria-expanded", String(open));
+      jobDetails.innerHTML = `${icon("chevron-down")}${open ? "Hide job details" : "View job details"}`;
+      return;
+    }
+
+    const aiApply = event.target.closest("[data-ai-apply]");
+    if (aiApply) {
+      openAiApplication(aiApply.dataset.aiApply);
       return;
     }
 
@@ -1947,9 +1979,9 @@
         region: marker.dataset.mapRegion,
         module: "all",
         group: "all",
-        workMode: "all",
+        workMode: state.homeWorkMode,
         source: "all",
-        employment: "all"
+        employment: state.homeEmployment
       });
     }
   });

@@ -8,8 +8,8 @@ Open `index.html`, then choose **Open Talent Radar**. For direct access, open `d
 
 ## Product views
 
-- **Home** — dynamically filtered regional opportunity map, snapshot totals, market spotlights, and permanent/contract drill-downs
-- **Feed** — 40 verified public listings in date sequence with a dedicated filter sidebar for permanent, contract, temporary, on-site, hybrid, remote, SAP module and non-SAP views
+- **Home** — a job-free regional map with dynamic Permanent, Contract, On-site, Hybrid and Remote counts; every count drills into the matching Feed
+- **Feed** — 40 verified public listings in date sequence with full job details, direct source links, an **Apply with AI** entry point, and filters for permanent, contract, temporary, work arrangement, SAP module and non-SAP views
 - **SAP Market** — merged module and workstream overview with live demand ranking, workstream distribution, a module × workstream matrix, market signals, filters and one-click Feed drill-downs
 - **Watchlist** — locally saved opportunities
 - **Settings** — source verification status and local-data controls
@@ -21,6 +21,13 @@ Open `index.html`, then choose **Open Talent Radar**. For direct access, open `d
 - Non-SAP records are classified as **All other jobs**.
 - Every application action opens the exact public listing that was checked.
 - Watchlist choices use browser local storage and are not synced externally.
+
+## Install on a phone
+
+- **iPhone / iPad:** open the published site in Safari, use **Share**, then choose **Add to Home Screen**.
+- **Android:** open the site in Chrome, open the browser menu, then choose **Install app** or **Add to Home screen**.
+- The PWA launches in a standalone mobile shell with a compact top bar and persistent bottom navigation.
+- The current **Apply with AI** sheet previews the supervised workflow and opens the verified application page. Automated form completion requires the secure profile vault and application-agent backend planned for the next build.
 
 ## Data boundary
 
@@ -36,4 +43,6 @@ The static prototype does not scrape job boards or run a scheduler. Availability
 - `scripts/dashboard.js` — routes, filters, watchlist and interactions
 - `scripts/live-jobs.js` — verified public listings and direct application URLs
 - `scripts/data.js` — validated product data and SAP taxonomy
+- `scripts/pwa.js` — install support and iOS installation guidance
+- `manifest.webmanifest` and `service-worker.js` — installable PWA metadata and offline shell
 - `DESIGN_SPEC.md` — active visual and interaction specification

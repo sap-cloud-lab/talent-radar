@@ -7,10 +7,33 @@
       name="description"
       content="Talent Radar — a light, focused view of SAP talent opportunities across Australia and New Zealand."
     />
+    <meta name="theme-color" content="#f7fafc" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Talent Radar" />
     <title>Talent Radar</title>
-    <link rel="stylesheet" href="styles/dashboard.css?v=20260724i" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="public/talent-radar-icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="public/talent-radar-icon-180.png" />
+    <link rel="stylesheet" href="styles/dashboard.css?v=20260724n" />
   </head>
   <body>
+    <header class="mobile-topbar" aria-label="Talent Radar mobile header">
+      <a class="mobile-brand" href="#overview" aria-label="Talent Radar home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="17"></circle>
+            <circle cx="24" cy="24" r="9"></circle>
+            <path d="M24 24 36 12M24 7V3M41 24h4"></path>
+            <circle class="brand-dot" cx="24" cy="24" r="3"></circle>
+          </svg>
+        </span>
+        <span>Talent Radar</span>
+      </a>
+      <a class="mobile-profile" href="#settings" aria-label="Open Mahendra profile">M</a>
+    </header>
+
     <div class="app-shell">
       <aside class="sidebar" id="sidebar" aria-label="Primary navigation">
         <a class="brand" href="#overview" aria-label="Talent Radar home">
@@ -63,11 +86,51 @@
       </main>
     </div>
 
+    <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+      <a href="#overview" data-route-link="overview"><span data-icon="home"></span><span>Home</span></a>
+      <a href="#opportunities" data-route-link="opportunities"><span data-icon="pulse"></span><span>Feed</span></a>
+      <a href="#sap-landscape" data-route-link="sap-landscape"><span data-icon="database"></span><span>SAP</span></a>
+      <a href="#watchlist" data-route-link="watchlist"><span data-icon="bookmark"></span><span>Saved</span></a>
+      <a href="#settings" data-route-link="settings"><span data-icon="user"></span><span>Profile</span></a>
+    </nav>
+
     <div class="toast-region" aria-live="polite" aria-atomic="false"></div>
 
-    <script src="scripts/shared.js?v=20260724i"></script>
-    <script src="scripts/live-jobs.js?v=20260724i"></script>
-    <script src="scripts/data.js?v=20260724i"></script>
-    <script src="scripts/dashboard.js?v=20260724i"></script>
+    <dialog class="ai-apply-dialog" id="ai-apply-dialog" aria-labelledby="ai-apply-title">
+      <form method="dialog" class="ai-apply-sheet">
+        <div class="ai-apply-handle" aria-hidden="true"></div>
+        <div class="ai-apply-heading">
+          <span class="ai-apply-icon" data-icon="radar"></span>
+          <div>
+            <p>Application assistant</p>
+            <h2 id="ai-apply-title">Apply with AI</h2>
+          </div>
+          <button class="ai-dialog-close" type="submit" aria-label="Close application assistant">
+            <span data-icon="x"></span>
+          </button>
+        </div>
+        <div class="ai-apply-job" id="ai-apply-job"></div>
+        <ol class="ai-apply-steps">
+          <li><span>1</span><div><strong>Confirm the role is live</strong><small>Recheck the verified application page.</small></div></li>
+          <li><span>2</span><div><strong>Prepare the application</strong><small>Use Mahendra’s approved résumé and generate the cover letter.</small></div></li>
+          <li><span>3</span><div><strong>Submit where permitted</strong><small>Pause only for CAPTCHA or MFA.</small></div></li>
+        </ol>
+        <p class="ai-apply-readiness">
+          The mobile entry point is ready. Automatic submission will activate when Mahendra’s secure profile vault and agent backend are connected.
+        </p>
+        <div class="ai-apply-actions">
+          <a class="primary-action" id="ai-apply-source" href="#" target="_blank" rel="noopener noreferrer">
+            Continue to application <span data-icon="external"></span>
+          </a>
+          <button class="secondary-action" type="submit">Close</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="scripts/shared.js?v=20260724n"></script>
+    <script src="scripts/live-jobs.js?v=20260724n"></script>
+    <script src="scripts/data.js?v=20260724n"></script>
+    <script src="scripts/pwa.js?v=20260724n"></script>
+    <script src="scripts/dashboard.js?v=20260724n"></script>
   </body>
 </html>
