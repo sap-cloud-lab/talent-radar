@@ -659,6 +659,10 @@ body.feed-route .sidebar-note {
   display: none;
 }
 
+.home-map-action {
+  display: none;
+}
+
 .map-land {
   fill: url("#map-gradient");
   stroke: #aaccea;
@@ -3758,7 +3762,7 @@ button.secondary-action {
   }
 
   .home-page .page-header {
-    margin-bottom: 7px;
+    margin-bottom: 12px;
   }
 
   .home-page .page-title {
@@ -3774,7 +3778,7 @@ button.secondary-action {
     position: relative;
     display: grid;
     grid-template-columns: minmax(96px, 0.75fr) minmax(150px, 1.4fr) 38px;
-    gap: 5px 6px;
+    gap: 10px 6px;
   }
 
   .home-page .map-region-select {
@@ -3839,7 +3843,7 @@ button.secondary-action {
 
   .home-page .explorer-grid {
     min-height: 0;
-    margin-top: 2px;
+    margin-top: 10px;
   }
 
   .home-page .map-panel {
@@ -3868,21 +3872,21 @@ button.secondary-action {
   }
 
   .home-page .map-glow {
-    inset: 26px -8% -5px -8%;
+    inset: 22px -10% 32px -10%;
   }
 
   .home-page .region-map {
-    inset: auto -13% auto -13%;
-    top: 52%;
-    width: 126%;
+    inset: auto -16% auto -16%;
+    top: 49%;
+    width: 132%;
     height: auto;
     transform: translateY(-48%);
   }
 
   .home-page .mobile-map-labels {
-    inset: auto -7% auto -7%;
-    top: 52%;
-    width: 114%;
+    inset: auto -9% auto -9%;
+    top: 49%;
+    width: 118%;
     height: auto;
     aspect-ratio: 850 / 520;
     transform: translateY(-48%);
@@ -3898,6 +3902,40 @@ button.secondary-action {
 
   .home-page .mobile-map-marker strong {
     font-size: 9px;
+  }
+
+  .home-page .home-map-action {
+    position: absolute;
+    z-index: 7;
+    bottom: 7px;
+    left: 50%;
+    display: inline-flex;
+    min-height: 30px;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 1px solid #9bbfdd;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.96);
+    padding: 0 13px;
+    color: var(--blue);
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 720;
+    white-space: nowrap;
+    box-shadow: 0 6px 18px rgba(29, 59, 86, 0.11);
+    transform: translateX(-50%);
+  }
+
+  .home-page .home-map-action .icon {
+    width: 13px;
+    height: 13px;
+  }
+
+  .home-page .home-map-action:hover,
+  .home-page .home-map-action:focus-visible {
+    border-color: #69a4d3;
+    background: var(--blue-pale);
   }
 
   .home-footer {

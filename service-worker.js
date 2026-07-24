@@ -1,13 +1,13 @@
-const CACHE_NAME = "talent-radar-pwa-20260724q";
+const CACHE_NAME = "talent-radar-pwa-20260724r";
 const APP_SHELL = [
   "./dashboard.html",
   "./manifest.webmanifest",
-  "./styles/dashboard.css?v=20260724q",
-  "./scripts/shared.js?v=20260724q",
-  "./scripts/live-jobs.js?v=20260724q",
-  "./scripts/data.js?v=20260724q",
-  "./scripts/pwa.js?v=20260724q",
-  "./scripts/dashboard.js?v=20260724q",
+  "./styles/dashboard.css?v=20260724r",
+  "./scripts/shared.js?v=20260724r",
+  "./scripts/live-jobs.js?v=20260724r",
+  "./scripts/data.js?v=20260724r",
+  "./scripts/pwa.js?v=20260724r",
+  "./scripts/dashboard.js?v=20260724r",
   "./public/talent-radar-icon.svg",
   "./public/talent-radar-icon-180.png",
   "./public/talent-radar-icon-192.png",

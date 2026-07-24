@@ -412,6 +412,10 @@
             </button>
             <div class="map-glow" aria-hidden="true"></div>
             ${renderMap(mapJobs)}
+            <button class="home-map-action" type="button" data-home-ai-feed
+              aria-label="Open the filtered opportunity feed to apply with AI">
+              ${icon("radar")}<span>Apply with AI</span>${icon("arrow-right")}
+            </button>
           </div>
         </div>
       </section>`;
@@ -1741,7 +1745,7 @@
       return;
     }
 
-    if (event.target.closest("[data-home-total]")) {
+    if (event.target.closest("[data-home-total], [data-home-ai-feed]")) {
       setFeedRoute({
         q: "",
         category: "sap",

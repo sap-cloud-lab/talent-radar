@@ -78,6 +78,7 @@
 - Persistent Home, Feed, SAP, Saved and Profile navigation
 - Home is a fixed, map-first viewport: compact controls, result count and the full AU/NZ map remain visible together without scrolling
 - Filter changes update the count and map in place; Permanent, Contract, On-site, Hybrid and Remote controls use the compact mobile treatment
+- The compact `Apply with AI` shortcut below the map carries the current Home filters into the opportunity Feed
 - Home contains no individual job promotion
 - Feed results appear before the detailed filter panel on mobile
 - Job actions stack under the role summary and `Apply with AI` opens as a bottom sheet
