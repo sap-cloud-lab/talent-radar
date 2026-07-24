@@ -9,7 +9,8 @@
   const scrim = document.querySelector("#sidebar-scrim");
   const aiApplyDialog = document.querySelector("#ai-apply-dialog");
   const aiApplyJob = document.querySelector("#ai-apply-job");
-  const aiApplySource = document.querySelector("#ai-apply-source");
+  const aiApplyAction = document.querySelector("#ai-apply-action");
+  const aiApplyReadiness = document.querySelector("#ai-apply-readiness");
   const STORAGE_KEY = "talent-radar-watchlist-v2";
 
   if (!data || !ui || !main) {
@@ -19,6 +20,7 @@
   const routes = new Set([
     "overview",
     "opportunities",
+    "job-detail",
     "sap-landscape",
     "workstreams",
     "watchlist",
@@ -56,7 +58,8 @@
       workMode: "all",
       source: "all",
       employment: "all"
-    }
+    },
+    jobId: ""
   };
 
   const spotlights = [
@@ -254,8 +257,19 @@
 
   function normaliseRoute(hash) {
     const raw = (hash || "").replace(/^#/, "").split("?")[0] || "overview";
+    if (raw.startsWith("job/")) return "job-detail";
     const route = routeAliases[raw] || raw;
     return routes.has(route) ? route : "overview";
+  }
+
+  function jobIdFromHash(hash) {
+    const raw = (hash || "").replace(/^#/, "").split("?")[0];
+    if (!raw.startsWith("job/")) return "";
+    try {
+      return decodeURIComponent(raw.slice(4));
+    } catch {
+      return raw.slice(4);
+    }
   }
 
   function icon(name, className) {
@@ -293,11 +307,16 @@
 
   function render() {
     state.route = normaliseRoute(window.location.hash);
+    state.jobId = state.route === "job-detail" ? jobIdFromHash(window.location.hash) : "";
     document.documentElement.classList.toggle("home-route", state.route === "overview");
     document.body.classList.toggle("home-route", state.route === "overview");
-    document.body.classList.toggle("feed-route", state.route === "opportunities");
+    document.body.classList.toggle(
+      "feed-route",
+      state.route === "opportunities" || state.route === "job-detail"
+    );
+    const navigationRoute = state.route === "job-detail" ? "opportunities" : state.route;
     document.querySelectorAll("[data-route-link]").forEach((link) => {
-      const active = link.dataset.routeLink === state.route;
+      const active = link.dataset.routeLink === navigationRoute;
       link.classList.toggle("active", active);
       if (active) link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
@@ -306,6 +325,7 @@
     const renderers = {
       overview: renderHome,
       opportunities: renderFeed,
+      "job-detail": renderJobDetail,
       "sap-landscape": renderModules,
       workstreams: renderModules,
       watchlist: renderWatchlist,
@@ -870,7 +890,6 @@
     const mode = normaliseWorkMode(job.workMode);
     const employment = employmentTypeForJob(job);
     const saved = state.watchlist.has(job.id);
-    const source = sourceLink(job);
     const modeIcon = mode === "remote" ? "globe" : mode === "hybrid" ? "home" : mode === "fifo" ? "location" : "briefcase";
     const displayDate = formatRecordDate(job.firstSeen);
     return `
@@ -896,30 +915,154 @@
             <span class="job-fact">${icon("calendar")}${esc(job.postedLabel || displayDate)}</span>
             <span class="job-fact">${icon("external")}${esc(job.source)}</span>
           </div>
-          <button class="secondary-action job-details-toggle" type="button" data-job-details
-            aria-expanded="false">${icon("chevron-down")}View job details</button>
-          <div class="job-detail-content">
-            <p class="job-summary">${esc(job.summary)}</p>
-            <div class="job-tags">
-              <span class="job-tag ${job.stream === "Other" ? "other" : ""}">${esc(job.module)}</span>
-              ${(job.skills || []).slice(0, 4).map((skill) => `<span class="job-tag">${esc(skill)}</span>`).join("")}
-            </div>
-          </div>
+          <p class="job-summary">${esc(job.summary)}</p>
+          <a class="secondary-action job-details-link" href="#job/${encodeURIComponent(job.id)}">
+            View full job details ${icon("chevron-right")}
+          </a>
         </div>
         <div class="job-actions">
           ${job.rate ? `<span class="job-rate">${esc(job.rate)}</span>` : ""}
           <button class="primary-action ai-apply-button" type="button" data-ai-apply="${esc(job.id)}">
             ${icon("radar")}Apply with AI
           </button>
-          <a class="secondary-action" href="${esc(source.href)}" target="_blank" rel="noopener noreferrer">
-            View original listing ${icon("external")}
-          </a>
           <button class="secondary-action ${saved ? "saved" : ""}" type="button" data-watch-job="${esc(job.id)}">
             ${icon("bookmark")}${saved ? "Saved to watchlist" : "Save to watchlist"}
           </button>
-          <p class="source-caveat">Application page checked ${esc(formatRecordDate(job.verifiedAt))}.</p>
+          <p class="source-caveat">${esc(job.source)} application page checked ${esc(
+            formatRecordDate(job.verifiedAt)
+          )}. The source opens only for MFA, CAPTCHA or final submission.</p>
         </div>
       </article>`;
+  }
+
+  function jobDetailFocus(job) {
+    const skills = (job.skills || []).filter(Boolean);
+    const skillText = skills.length ? skills.join(", ") : job.module;
+    const employment = employmentTypeForJob(job);
+    const mode = normaliseWorkMode(job.workMode);
+    const roleSetting = [
+      mode === "not-stated" ? "" : workModeLabels[mode],
+      employment === "not-stated" ? "role" : `${employment} role`
+    ]
+      .filter(Boolean)
+      .join(" ");
+    const groupCopy = {
+      Functional: `Translate business requirements into practical ${job.module} process and configuration outcomes.`,
+      Technical: `Design, build, test and support the technical solution across ${skillText}.`,
+      Leadership: `Lead delivery decisions, stakeholders and execution across the advertised ${job.module} scope.`,
+      Other: `Coordinate the advertised work across business and delivery teams.`
+    };
+    return [
+      job.summary,
+      job.priorityReason,
+      groupCopy[job.group] || groupCopy.Other,
+      `${roleSetting} based in ${job.location}.`
+    ].filter((item, index, values) => item && values.indexOf(item) === index);
+  }
+
+  function renderJobDetail() {
+    const job = data.jobs.find((item) => item.id === state.jobId);
+    if (!job) {
+      return `
+        <section class="page job-detail-page" data-page="job-detail">
+          <a class="job-detail-back" href="#opportunities">${icon("arrow-right")}Back to opportunity feed</a>
+          ${renderEmptyState("search", "Opportunity not found", "This listing is no longer available in the current Talent Radar snapshot.")}
+        </section>`;
+    }
+
+    const mode = normaliseWorkMode(job.workMode);
+    const employment = employmentTypeForJob(job);
+    const saved = state.watchlist.has(job.id);
+    const displayDate = formatRecordDate(job.firstSeen);
+    const modeIcon = mode === "remote" ? "globe" : mode === "hybrid" ? "home" : mode === "fifo" ? "location" : "briefcase";
+    const focus = jobDetailFocus(job);
+    const skills = [job.module, ...(job.skills || [])].filter(
+      (item, index, values) => item && values.indexOf(item) === index
+    );
+
+    return `
+      <section class="page job-detail-page" data-page="job-detail">
+        <a class="job-detail-back" href="#opportunities">${icon("arrow-right")}Back to opportunity feed</a>
+
+        <div class="job-detail-layout">
+          <article class="job-detail-main">
+            <header class="job-detail-hero">
+              <div class="job-meta-row">
+                <span class="badge ${mode}">${icon(modeIcon)}${esc(workModeLabels[mode])}</span>
+                ${
+                  employment !== "not-stated"
+                    ? `<span class="badge employment ${employment}">${esc(
+                        employment === "permanent" ? "Permanent" : employment === "contract" ? "Contract" : "Temporary"
+                      )}</span>`
+                    : ""
+                }
+                <span class="badge archive">${icon("shield")}Application verified</span>
+              </div>
+              <h1>${esc(job.title)}</h1>
+              <p class="job-detail-company">${esc(job.company)}</p>
+              <div class="job-detail-facts">
+                <span>${icon("location")}<strong>Location</strong>${esc(job.location)}</span>
+                <span>${icon("calendar")}<strong>Listed</strong>${esc(job.postedLabel || displayDate)}</span>
+                <span>${icon("database")}<strong>Source</strong>${esc(job.source)}</span>
+                ${
+                  job.rate
+                    ? `<span>${icon("tag")}<strong>Rate</strong>${esc(job.rate)}</span>`
+                    : ""
+                }
+              </div>
+            </header>
+
+            <section class="job-description-section">
+              <h2>Job description</h2>
+              <p class="job-description-lead">${esc(job.summary)}</p>
+              <p>${esc(job.priorityReason || "This role is included because its public application page was active when Talent Radar checked it.")}</p>
+            </section>
+
+            <section class="job-description-section">
+              <h2>What you will work on</h2>
+              <ul class="job-detail-list">
+                ${focus.map((item) => `<li>${icon("check-circle")}<span>${esc(item)}</span></li>`).join("")}
+              </ul>
+            </section>
+
+            <section class="job-description-section">
+              <h2>Skills highlighted in the listing</h2>
+              <div class="job-detail-skills">
+                ${skills.map((skill) => `<span>${esc(skill)}</span>`).join("")}
+              </div>
+              <p class="job-detail-note">Talent Radar presents a structured, non-verbatim brief from the current public listing so you can assess the opportunity without leaving the app.</p>
+            </section>
+
+            <section class="job-description-section source-verification">
+              <div>${icon("shield")}</div>
+              <div>
+                <h2>Source and application verification</h2>
+                <p><strong>${esc(job.source)}</strong> showed an active application path when checked on ${esc(
+                  formatRecordDate(job.verifiedAt)
+                )}.</p>
+                <p>The external source remains in the background. Talent Radar only opens it when MFA, CAPTCHA or final submission requires your involvement.</p>
+              </div>
+            </section>
+          </article>
+
+          <aside class="job-detail-actions" aria-label="Application options">
+            <p class="job-detail-actions-label">Application options</p>
+            <h2>Interested in this role?</h2>
+            <p>Review the internal brief, then let Talent Radar prepare the application using Mahendra's profile.</p>
+            <button class="primary-action ai-apply-button" type="button" data-ai-apply="${esc(job.id)}">
+              ${icon("radar")}Apply with AI
+            </button>
+            <button class="secondary-action ${saved ? "saved" : ""}" type="button" data-watch-job="${esc(job.id)}">
+              ${icon("bookmark")}${saved ? "Saved to watchlist" : "Save to watchlist"}
+            </button>
+            <dl class="job-detail-status">
+              <div><dt>Vacancy</dt><dd>Open when checked</dd></div>
+              <div><dt>Apply link</dt><dd>Verified</dd></div>
+              <div><dt>External handoff</dt><dd>Only when required</dd></div>
+            </dl>
+          </aside>
+        </div>
+      </section>`;
   }
 
   function normaliseWorkMode(value) {
@@ -939,32 +1082,11 @@
     return "not-stated";
   }
 
-  function sourceLink(job) {
-    if (job.sourceUrl) {
-      return {
-        label: "View & apply",
-        href: job.sourceUrl
-      };
-    }
-    const keywords = encodeURIComponent(job.title.replace(/\(saved-search.*?\)/gi, "").trim());
-    const location = encodeURIComponent(job.location || "Australia");
-    if (job.source.toLowerCase().includes("linkedin")) {
-      return {
-        label: "Search LinkedIn",
-        href: `https://www.linkedin.com/jobs/search/?keywords=${keywords}&location=${location}`
-      };
-    }
-    return {
-      label: "Search on SEEK",
-      href: `https://www.seek.com.au/jobs?keywords=${keywords}`
-    };
-  }
-
   function openAiApplication(jobId) {
     const job = data.jobs.find((item) => item.id === jobId);
-    if (!job || !aiApplyDialog || !aiApplyJob || !aiApplySource) return;
-    const source = sourceLink(job);
+    if (!job || !aiApplyDialog || !aiApplyJob || !aiApplyAction || !aiApplyReadiness) return;
     const employment = employmentTypeForJob(job);
+    aiApplyDialog.dataset.jobId = job.id;
     aiApplyJob.innerHTML = `
       <span class="ai-profile-chip">${icon("user")}Apply as Mahendra</span>
       <h3>${esc(job.title)}</h3>
@@ -977,7 +1099,11 @@
             : `<span>${esc(employment === "permanent" ? "Permanent" : employment === "contract" ? "Contract" : "Temporary")}</span>`
         }
       </div>`;
-    aiApplySource.href = source.href;
+    aiApplyAction.disabled = false;
+    aiApplyAction.innerHTML = `${icon("radar")}Prepare application in Talent Radar`;
+    aiApplyReadiness.innerHTML = `
+      <strong>Talent Radar stays in control.</strong>
+      The source website will open only if MFA, CAPTCHA or final submission needs you.`;
     if (typeof aiApplyDialog.showModal === "function") aiApplyDialog.showModal();
     else aiApplyDialog.setAttribute("open", "");
   }
@@ -1826,12 +1952,19 @@
       return;
     }
 
-    const jobDetails = event.target.closest("[data-job-details]");
-    if (jobDetails) {
-      const card = jobDetails.closest(".job-card");
-      const open = card ? card.classList.toggle("details-open") : false;
-      jobDetails.setAttribute("aria-expanded", String(open));
-      jobDetails.innerHTML = `${icon("chevron-down")}${open ? "Hide job details" : "View job details"}`;
+    if (event.target.closest("[data-ai-prepare]")) {
+      const job = data.jobs.find((item) => item.id === aiApplyDialog?.dataset.jobId);
+      if (!job || !aiApplyAction || !aiApplyReadiness) return;
+      aiApplyAction.disabled = true;
+      aiApplyAction.innerHTML = `${icon("check-circle")}Application preparation ready`;
+      aiApplyReadiness.innerHTML = `
+        <strong>Application plan prepared inside Talent Radar.</strong>
+        No external website was opened. Connect the secure profile vault and application agent to complete résumé tailoring, cover-letter generation and submission.`;
+      ui.showToast({
+        title: "Application kept inside Talent Radar",
+        message: `${job.title} is ready for the supervised AI workflow.`,
+        tone: "success"
+      });
       return;
     }
 

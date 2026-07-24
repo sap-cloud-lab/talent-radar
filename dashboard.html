@@ -16,7 +16,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" href="public/talent-radar-icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="public/talent-radar-icon-180.png" />
-    <link rel="stylesheet" href="styles/dashboard.css?v=20260724s" />
+    <link rel="stylesheet" href="styles/dashboard.css?v=20260724u" />
   </head>
   <body>
     <header class="mobile-topbar" aria-label="Talent Radar mobile header">
@@ -115,22 +115,22 @@
           <li><span>2</span><div><strong>Prepare the application</strong><small>Use Mahendra’s approved résumé and generate the cover letter.</small></div></li>
           <li><span>3</span><div><strong>Submit where permitted</strong><small>Pause only for CAPTCHA or MFA.</small></div></li>
         </ol>
-        <p class="ai-apply-readiness">
-          The mobile entry point is ready. Automatic submission will activate when Mahendra’s secure profile vault and agent backend are connected.
+        <p class="ai-apply-readiness" id="ai-apply-readiness">
+          Talent Radar stays in control. The source website opens only when MFA, CAPTCHA or final submission needs you.
         </p>
         <div class="ai-apply-actions">
-          <a class="primary-action" id="ai-apply-source" href="#" target="_blank" rel="noopener noreferrer">
-            Continue to application <span data-icon="external"></span>
-          </a>
+          <button class="primary-action" id="ai-apply-action" type="button" data-ai-prepare>
+            <span data-icon="radar"></span>Prepare application in Talent Radar
+          </button>
           <button class="secondary-action" type="submit">Close</button>
         </div>
       </form>
     </dialog>
 
-    <script src="scripts/shared.js?v=20260724s"></script>
-    <script src="scripts/live-jobs.js?v=20260724s"></script>
-    <script src="scripts/data.js?v=20260724s"></script>
-    <script src="scripts/pwa.js?v=20260724s"></script>
-    <script src="scripts/dashboard.js?v=20260724s"></script>
+    <script src="scripts/shared.js?v=20260724u"></script>
+    <script src="scripts/live-jobs.js?v=20260724u"></script>
+    <script src="scripts/data.js?v=20260724u"></script>
+    <script src="scripts/pwa.js?v=20260724u"></script>
+    <script src="scripts/dashboard.js?v=20260724u"></script>
   </body>
 </html>

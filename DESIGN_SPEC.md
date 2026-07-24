@@ -44,8 +44,9 @@
 - Region and source remain in the compact search toolbar
 - Remote-only records use a green leading rail and pale-green card treatment
 - Every card includes verification date, posting age, location, tags, work arrangement and watchlist control
-- Mobile cards reveal the description and skill tags through a compact `View job details` control
-- `Apply with AI` opens the supervised application sheet; `View original listing` opens the exact verified public listing
+- `View full job details` opens an internal Talent Radar page with the structured description, role focus, highlighted skills, source verification and application options
+- `Apply with AI` opens the supervised application sheet and remains inside Talent Radar
+- The external source opens only when MFA, CAPTCHA or final submission requires a user handoff
 
 ## SAP Market
 
@@ -69,7 +70,7 @@
 - Exclude email alerts, recruiter messages, historical inbox records and closed listings
 - Use `Not stated` when a source did not specify a work arrangement
 - Use `All other jobs` for non-SAP opportunities
-- Link only to the exact public listing URL
+- Retain only the exact public listing URL for the supervised application handoff
 
 ## Mobile PWA
 
