@@ -26,6 +26,7 @@
 - Region dropdown: All regions, Sydney, Melbourne, Adelaide, Canberra, Brisbane, Perth, New Zealand and Australia-wide
 - Map controls for Permanent and Contract employment, and for On-site, Hybrid and Remote work arrangements
 - Opportunity total and every regional marker count update immediately from the selected filters
+- City markers count only roles that explicitly name that city; Australia-wide remote roles appear only under `Remote AU`
 - Selecting a region visually isolates its marker while retaining the full AU/NZ map for context
 - AU/NZ map with Perth, Adelaide, Melbourne, Canberra, Sydney, Brisbane, remote Australia and New Zealand markers
 - The headline total and every map marker drill directly into the Feed with the current region, employment and work-arrangement filters preserved

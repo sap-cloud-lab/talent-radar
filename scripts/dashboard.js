@@ -193,14 +193,14 @@
 
     const cityPatterns = {
       sydney: /\b(sydney|blacktown)\b/,
-      melbourne: /\b(melbourne|clayton)\b/,
+      melbourne: /\b(melbourne|clayton|moorabbin)\b/,
       adelaide: /\badelaide\b/,
       canberra: /\b(canberra|act)\b/,
       brisbane: /\bbrisbane\b/,
-      perth: /\bperth\b/
+      perth: /\b(perth|western australia|wa)\b/
     };
     const pattern = cityPatterns[region];
-    return Boolean(pattern && (pattern.test(location) || australiaWide || australiaRemote));
+    return Boolean(pattern && pattern.test(location));
   }
 
   function mapRegionMatchesJob(job, region) {
