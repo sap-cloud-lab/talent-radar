@@ -330,7 +330,11 @@
     const activeRegionLabel = regionOptions.find(([value]) => value === state.region)?.[1] || "All regions";
     const activeScope = [
       activeRegionLabel,
-      state.homeEmployment === "permanent" ? "Permanent" : "",
+      state.homeEmployment === "permanent"
+        ? "Permanent"
+        : state.homeEmployment === "contract"
+          ? "Contract"
+          : "",
       state.homeWorkMode === "onsite"
         ? "On-site"
         : state.homeWorkMode === "hybrid"
@@ -366,7 +370,8 @@
             <div>
               ${[
                 ["all", "All roles"],
-                ["permanent", "Permanent"]
+                ["permanent", "Permanent"],
+                ["contract", "Contract"]
               ]
                 .map(
                   ([value, label]) => `
