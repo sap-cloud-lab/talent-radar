@@ -246,6 +246,7 @@
 
   function render() {
     state.route = normaliseRoute(window.location.hash);
+    document.body.classList.toggle("feed-route", state.route === "opportunities");
     document.querySelectorAll("[data-route-link]").forEach((link) => {
       const active = link.dataset.routeLink === state.route;
       link.classList.toggle("active", active);
@@ -424,7 +425,7 @@
       </article>`;
   }
 
-  function renderFeed() {
+  function renderFeedLegacy() {
     const modules = [...new Set(data.jobs.filter((job) => job.stream === "SAP").map((job) => job.module))].sort();
     const sources = [...new Set(data.jobs.map((job) => job.source))].sort();
     return `
@@ -534,6 +535,169 @@
       </section>`;
   }
 
+  function renderFeed() {
+    const openJobs = data.jobs.filter((job) => job.applyStatus === "open" && job.sourceUrl);
+    const modules = [...new Set(openJobs.filter((job) => job.stream === "SAP").map((job) => job.module))].sort();
+    const sources = [...new Set(openJobs.map((job) => job.source))].sort();
+    const countBy = (predicate) => openJobs.filter(predicate).length;
+    const railButton = ({ value, label, count, iconName, active, attribute }) => `
+      <button class="filter-rail-option ${active ? "active" : ""}" type="button" ${attribute}="${esc(value)}"
+        aria-pressed="${active}">
+        <span class="filter-rail-option-icon">${icon(iconName)}</span>
+        <span>${esc(label)}</span>
+        <strong>${count}</strong>
+      </button>`;
+    const employmentOptions = [
+      ["all", "All employment", openJobs.length, "briefcase"],
+      ["permanent", "Permanent", countBy((job) => employmentTypeForJob(job) === "permanent"), "briefcase"],
+      ["contract", "Contract", countBy((job) => employmentTypeForJob(job) === "contract"), "clock"],
+      ["temporary", "Temporary", countBy((job) => employmentTypeForJob(job) === "temporary"), "calendar"]
+    ];
+    const workModeOptions = [
+      ["all", "All work modes", openJobs.length, "briefcase"],
+      ["onsite", "On-site", countBy((job) => normaliseWorkMode(job.workMode) === "onsite"), "location"],
+      ["hybrid", "Hybrid", countBy((job) => normaliseWorkMode(job.workMode) === "hybrid"), "home"],
+      ["remote", "Remote", countBy((job) => normaliseWorkMode(job.workMode) === "remote"), "globe"]
+    ];
+    const categoryOptions = [
+      ["all", "All opportunities", openJobs.length, "pulse"],
+      ["sap", "SAP opportunities", countBy((job) => job.stream === "SAP"), "database"],
+      ["other", "Non-SAP opportunities", countBy((job) => job.stream !== "SAP"), "briefcase"]
+    ];
+
+    return `
+      <section class="page feed-page" data-page="opportunities">
+        ${pageHeader({
+          eyebrow: "Opportunity feed",
+          title: "Every opportunity, in sequence",
+          subtitle: "Current public listings, ordered newest first. Use the filter panel to narrow the market.",
+          note: true
+        })}
+
+        <div class="feed-toolbar" aria-label="Search and location filters">
+          <div class="feed-control-top">
+            <label class="search-field">
+              <span class="sr-only">Search opportunities</span>
+              ${icon("search")}
+              <input id="feed-search" type="search" value="${esc(state.feed.q)}"
+                placeholder="Search roles, companies, skills or locations..." autocomplete="off" />
+            </label>
+            <select class="filter-select" aria-label="Region" data-feed-select="region">
+              ${feedRegions
+                .map(
+                  ([value, label]) =>
+                    `<option value="${value}" ${state.feed.region === value ? "selected" : ""}>${label}</option>`
+                )
+                .join("")}
+            </select>
+            <select class="filter-select" aria-label="Source" data-feed-select="source">
+              <option value="all">All sources</option>
+              ${sources
+                .map(
+                  (source) =>
+                    `<option value="${esc(source)}" ${state.feed.source === source ? "selected" : ""}>${esc(source)}</option>`
+                )
+                .join("")}
+            </select>
+            <button class="clear-filters toolbar-clear" type="button" data-clear-filters>Clear all</button>
+          </div>
+        </div>
+
+        <div class="feed-layout">
+          <aside class="feed-filter-panel" aria-label="Opportunity filters">
+            <div class="filter-panel-heading">
+              <div>${icon("filter")}<h2>Filter opportunities</h2></div>
+              <button type="button" data-clear-filters>Reset</button>
+            </div>
+
+            <section class="filter-rail-group" aria-labelledby="employment-filter-title">
+              <h3 id="employment-filter-title">Employment type</h3>
+              <div class="filter-rail-options">
+                ${employmentOptions
+                  .map(([value, label, count, iconName]) =>
+                    railButton({
+                      value,
+                      label,
+                      count,
+                      iconName,
+                      active: state.feed.employment === value,
+                      attribute: "data-feed-employment"
+                    })
+                  )
+                  .join("")}
+              </div>
+            </section>
+
+            <section class="filter-rail-group" aria-labelledby="workmode-filter-title">
+              <h3 id="workmode-filter-title">Work arrangement</h3>
+              <div class="filter-rail-options">
+                ${workModeOptions
+                  .map(([value, label, count, iconName]) =>
+                    railButton({
+                      value,
+                      label,
+                      count,
+                      iconName,
+                      active: state.feed.workMode === value,
+                      attribute: "data-feed-mode"
+                    })
+                  )
+                  .join("")}
+              </div>
+            </section>
+
+            <section class="filter-rail-group" aria-labelledby="category-filter-title">
+              <h3 id="category-filter-title">Opportunity type</h3>
+              <div class="filter-rail-options">
+                ${categoryOptions
+                  .map(([value, label, count, iconName]) =>
+                    railButton({
+                      value,
+                      label,
+                      count,
+                      iconName,
+                      active: state.feed.category === value && state.feed.module === "all",
+                      attribute: "data-feed-category"
+                    })
+                  )
+                  .join("")}
+              </div>
+            </section>
+
+            <section class="filter-rail-group module-filter-group" aria-labelledby="module-filter-title">
+              <h3 id="module-filter-title">SAP modules</h3>
+              <div class="filter-rail-options">
+                ${railButton({
+                  value: "all",
+                  label: "All SAP modules",
+                  count: countBy((job) => job.stream === "SAP"),
+                  iconName: "database",
+                  active: state.feed.category === "sap" && state.feed.module === "all",
+                  attribute: "data-feed-module"
+                })}
+                ${modules
+                  .map((module) =>
+                    railButton({
+                      value: module,
+                      label: module,
+                      count: countBy((job) => job.stream === "SAP" && job.module === module),
+                      iconName: "tag",
+                      active: state.feed.category === "sap" && state.feed.module === module,
+                      attribute: "data-feed-module"
+                    })
+                  )
+                  .join("")}
+              </div>
+            </section>
+          </aside>
+
+          <div class="feed-results-column">
+            <div id="feed-results">${renderFeedResults()}</div>
+          </div>
+        </div>
+      </section>`;
+  }
+
   function filteredJobs() {
     const query = state.feed.q.trim().toLowerCase();
     return data.jobs
@@ -591,7 +755,9 @@
         ? " · Permanent roles"
         : state.feed.employment === "contract"
           ? " · Contract roles"
-          : "";
+          : state.feed.employment === "temporary"
+            ? " · Temporary roles"
+            : "";
     return `
       <div class="feed-summary">
         <div><strong>${jobs.length} ${jobs.length === 1 ? "opportunity" : "opportunities"}</strong>
@@ -607,6 +773,7 @@
 
   function renderJobCard(job, index) {
     const mode = normaliseWorkMode(job.workMode);
+    const employment = employmentTypeForJob(job);
     const saved = state.watchlist.has(job.id);
     const source = sourceLink(job);
     const modeIcon = mode === "remote" ? "globe" : mode === "hybrid" ? "home" : mode === "fifo" ? "location" : "briefcase";
@@ -617,6 +784,13 @@
           <div class="job-meta-row">
             <span class="job-index">Opportunity ${String(index).padStart(2, "0")}</span>
             <span class="badge ${mode}">${icon(modeIcon)}${esc(workModeLabels[mode])}</span>
+            ${
+              employment !== "not-stated"
+                ? `<span class="badge employment ${employment}">${esc(
+                    employment === "permanent" ? "Permanent" : employment === "contract" ? "Contract" : "Temporary"
+                  )}</span>`
+                : ""
+            }
             <span class="badge archive">${icon("shield")}Apply link verified</span>
             ${job.stream === "Other" ? `<span class="badge onsite">All other jobs</span>` : ""}
           </div>
@@ -657,7 +831,8 @@
 
   function employmentTypeForJob(job) {
     const description = `${job.engagement || ""} ${job.type || ""}`.toLowerCase();
-    if (/\b(contract|temporary|fixed[\s-]?term|day rate|hourly)\b/.test(description)) return "contract";
+    if (/\b(temporary|fixed[\s-]?term)\b/.test(description)) return "temporary";
+    if (/\b(contract|day rate|hourly)\b/.test(description)) return "contract";
     if (/\b(permanent|regular full time)\b/.test(description)) return "permanent";
     return "not-stated";
   }
@@ -1176,7 +1351,23 @@
     if (category) {
       setFeedRoute({
         category: category.dataset.feedCategory,
-        module: category.dataset.feedCategory === "other" ? "all" : state.feed.module,
+        module: "all",
+        group: "all"
+      });
+      return;
+    }
+
+    const feedEmployment = event.target.closest("[data-feed-employment]");
+    if (feedEmployment) {
+      setFeedRoute({ employment: feedEmployment.dataset.feedEmployment });
+      return;
+    }
+
+    const feedModule = event.target.closest("[data-feed-module]");
+    if (feedModule) {
+      setFeedRoute({
+        category: "sap",
+        module: feedModule.dataset.feedModule,
         group: "all"
       });
       return;

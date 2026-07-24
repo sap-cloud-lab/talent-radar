@@ -6,7 +6,7 @@
 - Cool-white canvas, true-white surfaces, navy text, soft mineral-blue navigation
 - Green reserved for remote opportunities, amber for verification notes, coral for the strongest Sydney signal
 - Thin borders, restrained shadows, rounded cards and outline icons
-- Spacious desktop composition with a 268px sidebar; drawer navigation below 760px
+- Spacious desktop composition with a 268px sidebar, reduced to a 96px icon rail on the Feed; drawer navigation below 760px
 
 ## Navigation
 
@@ -35,10 +35,12 @@
 
 - All roles displayed in newest-public-listing order
 - Search by role, company, location, module or skill
-- Category controls: All opportunities, SAP jobs, All other jobs
-- SAP sub-module, workstream and source filters
-- Employment-type filter for explicitly advertised permanent and contract roles
-- Work-arrangement controls: Remote, Hybrid, On-site, FIFO and Not stated
+- Dedicated left filter panel with counts and clear selected states
+- Employment controls: Permanent, Contract and Temporary
+- Work-arrangement controls: On-site, Hybrid and Remote
+- Opportunity controls: All opportunities, SAP opportunities and Non-SAP opportunities
+- One-click filtering for every SAP module represented in the verified feed
+- Region and source remain in the compact search toolbar
 - Remote-only records use a green leading rail and pale-green card treatment
 - Every card includes verification date, posting age, location, tags, work arrangement and watchlist control
 - Application actions open the exact verified public listing
