@@ -26,7 +26,8 @@
     home: "overview",
     feed: "opportunities",
     modules: "sap-landscape",
-    pipeline: "workstreams",
+    pipeline: "sap-landscape",
+    workstreams: "sap-landscape",
     alerts: "watchlist",
     sources: "settings"
   };
@@ -36,6 +37,11 @@
     region: "all",
     homeEmployment: "all",
     homeWorkMode: "all",
+    market: {
+      region: "all",
+      employment: "all",
+      workMode: "all"
+    },
     spotlight: "sydney",
     watchlist: readWatchlist(),
     feed: {
@@ -296,7 +302,7 @@
       overview: renderHome,
       opportunities: renderFeed,
       "sap-landscape": renderModules,
-      workstreams: renderWorkstreams,
+      workstreams: renderModules,
       watchlist: renderWatchlist,
       settings: renderSettings
     };
@@ -857,10 +863,15 @@
           : state.feed.employment === "temporary"
             ? " · Temporary roles"
             : "";
+    const moduleScope = state.feed.module === "all" ? "" : ` · ${state.feed.module}`;
+    const groupScope =
+      state.feed.group === "all"
+        ? ""
+        : ` · ${state.feed.group === "Other" ? "Other & unclassified" : state.feed.group} workstream`;
     return `
       <div class="feed-summary">
         <div><strong>${jobs.length} ${jobs.length === 1 ? "opportunity" : "opportunities"}</strong>
-          <span>${regionScope}${employmentScope} · newest public listing first</span></div>
+          <span>${regionScope}${employmentScope}${moduleScope}${groupScope} · newest public listing first</span></div>
         <button class="clear-filters" type="button" data-clear-filters>Clear filters</button>
       </div>
       ${
@@ -1014,11 +1025,11 @@
     return `${rates.length} disclosed · ${rates.slice(0, 2).join(" · ")}`;
   }
 
-  function moduleIntelligence() {
+  function moduleIntelligence(sourceJobs = data.jobs) {
     const recentCutoff = "2026-07-10";
     const grouped = new Map();
 
-    data.jobs
+    sourceJobs
       .filter((job) => job.stream === "SAP")
       .forEach((job) => {
         if (!grouped.has(job.module)) grouped.set(job.module, []);
@@ -1051,6 +1062,268 @@
   }
 
   function renderModules() {
+    const baseJobs = data.jobs.filter(
+      (job) => job.stream === "SAP" && job.applyStatus === "open" && job.sourceUrl
+    );
+    const marketJobs = baseJobs.filter((job) => {
+      if (!regionMatchesJob(job, state.market.region)) return false;
+      if (
+        state.market.employment !== "all" &&
+        employmentTypeForJob(job) !== state.market.employment
+      )
+        return false;
+      if (
+        state.market.workMode !== "all" &&
+        normaliseWorkMode(job.workMode) !== state.market.workMode
+      )
+        return false;
+      return true;
+    });
+    const intelligence = moduleIntelligence(marketJobs);
+    const maxModuleCount = Math.max(...intelligence.map((item) => item.count), 1);
+    const workstreams = [
+      { id: "Functional", label: "Functional", tone: "functional" },
+      { id: "Technical", label: "Technical", tone: "technical" },
+      { id: "Leadership", label: "Leadership", tone: "leadership" },
+      { id: "Other", label: "Other", tone: "other" }
+    ].map((stream) => ({
+      ...stream,
+      count: marketJobs.filter((job) =>
+        stream.id === "Other"
+          ? !["Functional", "Technical", "Leadership"].includes(job.group)
+          : job.group === stream.id
+      ).length
+    }));
+    const hybridCount = marketJobs.filter(
+      (job) => normaliseWorkMode(job.workMode) === "hybrid"
+    ).length;
+    const contractCount = marketJobs.filter(
+      (job) => employmentTypeForJob(job) === "contract"
+    ).length;
+    const hottest = [...intelligence]
+      .sort((a, b) => b.score - a.score || b.count - a.count)
+      .slice(0, 3);
+    const recentlyAdded = [...marketJobs]
+      .sort((a, b) => (b.firstSeen || "").localeCompare(a.firstSeen || ""))
+      .slice(0, 3);
+    const remoteIntelligence = moduleIntelligence(
+      marketJobs.filter((job) => normaliseWorkMode(job.workMode) === "remote")
+    ).slice(0, 3);
+    const topLocations = feedRegions
+      .filter(([id]) => id !== "all")
+      .map(([id, label]) => ({
+        id,
+        label,
+        count: marketJobs.filter((job) => mapRegionMatchesJob(job, id)).length
+      }))
+      .filter((item) => item.count)
+      .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
+      .slice(0, 3);
+    const workstreamTotal = Math.max(
+      workstreams.reduce((sum, stream) => sum + stream.count, 0),
+      1
+    );
+
+    return `
+      <section class="page sap-market-page" data-page="sap-landscape">
+        ${pageHeader({
+          title: "SAP Market overview",
+          subtitle: "High-level view of verified SAP opportunities across modules and workstreams."
+        })}
+
+        <div class="sap-market-toolbar" aria-label="SAP market filters">
+          <label>
+            <span>Region</span>
+            <select data-market-select="region" aria-label="Market region">
+              ${feedRegions
+                .map(
+                  ([value, label]) =>
+                    `<option value="${value}" ${state.market.region === value ? "selected" : ""}>${label}</option>`
+                )
+                .join("")}
+            </select>
+          </label>
+          <label>
+            <span>Employment</span>
+            <select data-market-select="employment" aria-label="Market employment">
+              ${[
+                ["all", "All employment types"],
+                ["permanent", "Permanent"],
+                ["contract", "Contract"],
+                ["temporary", "Temporary"]
+              ]
+                .map(
+                  ([value, label]) =>
+                    `<option value="${value}" ${state.market.employment === value ? "selected" : ""}>${label}</option>`
+                )
+                .join("")}
+            </select>
+          </label>
+          <label>
+            <span>Work arrangement</span>
+            <select data-market-select="workMode" aria-label="Market work arrangement">
+              ${[
+                ["all", "All work arrangements"],
+                ["onsite", "On-site"],
+                ["hybrid", "Hybrid"],
+                ["remote", "Remote"]
+              ]
+                .map(
+                  ([value, label]) =>
+                    `<option value="${value}" ${state.market.workMode === value ? "selected" : ""}>${label}</option>`
+                )
+                .join("")}
+            </select>
+          </label>
+          <button type="button" data-clear-market-filters>${icon("refresh")}Clear</button>
+        </div>
+
+        <div class="sap-market-metrics" aria-label="Market summary">
+          ${[
+            ["briefcase", marketJobs.length, "opportunities", "Across active modules", "blue"],
+            ["database", intelligence.length, "active modules", "With verified demand", "teal"],
+            ["user", hybridCount, "hybrid roles", "Across opportunities", "orange"],
+            ["calendar", contractCount, "contract roles", "Across opportunities", "purple"]
+          ]
+            .map(
+              ([iconName, value, label, copy, tone]) => `
+                <article class="sap-market-metric tone-${tone}">
+                  <span>${icon(iconName)}</span>
+                  <div><strong>${value}</strong><b>${label}</b><small>${copy}</small></div>
+                </article>`
+            )
+            .join("")}
+        </div>
+
+        <div class="sap-market-primary">
+          <section class="sap-market-panel module-ranking-panel" aria-labelledby="market-module-title">
+            <div class="sap-market-panel-heading">
+              <div><h2 id="market-module-title">Opportunities by SAP module</h2><p>Ranked by current verified demand.</p></div>
+              <span>${intelligence.length} active</span>
+            </div>
+            ${
+              intelligence.length
+                ? `<div class="sap-module-table" role="table" aria-label="Opportunities by SAP module">
+                    <div class="sap-module-table-head" role="row">
+                      <span>#</span><span>Module</span><span>Opportunities</span><span>Relative demand</span><span></span>
+                    </div>
+                    ${intelligence
+                      .slice(0, 7)
+                      .map(
+                        (item, index) => `
+                          <button class="sap-module-table-row" type="button" role="row"
+                            data-module-filter="${esc(item.module)}" aria-label="View ${esc(item.module)} opportunities">
+                            <span>${index + 1}</span>
+                            <strong>${esc(item.module)}</strong>
+                            <b>${item.count}</b>
+                            <i><em style="width:${Math.max(8, Math.round((item.count / maxModuleCount) * 100))}%"></em></i>
+                            ${icon("chevron-right")}
+                          </button>`
+                      )
+                      .join("")}
+                  </div>`
+                : `<div class="sap-market-empty">No SAP modules match these filters.</div>`
+            }
+            <button class="sap-market-panel-link" type="button" data-clear-market-filters>View all modules ${icon("arrow-right")}</button>
+          </section>
+
+          <section class="sap-market-panel workstream-mix-panel" aria-labelledby="workstream-mix-title">
+            <div class="sap-market-panel-heading">
+              <div><h2 id="workstream-mix-title">Workstream mix</h2><p>How current opportunities are distributed.</p></div>
+            </div>
+            <div class="workstream-stack" aria-label="Workstream distribution">
+              ${workstreams
+                .filter((stream) => stream.count)
+                .map(
+                  (stream) =>
+                    `<span class="${stream.tone}" style="width:${(stream.count / workstreamTotal) * 100}%"
+                      title="${esc(stream.label)}: ${stream.count}"></span>`
+                )
+                .join("")}
+            </div>
+            <div class="workstream-mix-list">
+              ${workstreams
+                .map(
+                  (stream) => `
+                    <button type="button" data-group-filter="${stream.id}">
+                      <i class="${stream.tone}"></i>
+                      <span>${stream.label}</span>
+                      <strong>${stream.count}</strong>
+                      <small>${Math.round((stream.count / workstreamTotal) * 100)}%</small>
+                      ${icon("chevron-right")}
+                    </button>`
+                )
+                .join("")}
+            </div>
+            <button class="sap-market-panel-link" type="button" data-market-all-workstreams>
+              View all workstreams ${icon("arrow-right")}
+            </button>
+          </section>
+        </div>
+
+        <section class="sap-market-panel matrix-panel" aria-labelledby="market-matrix-title">
+          <div class="sap-market-panel-heading">
+            <div><h2 id="market-matrix-title">Module × workstream opportunity matrix</h2><p>Select any value to open the matching opportunities.</p></div>
+          </div>
+          ${
+            intelligence.length
+              ? `<div class="sap-matrix-wrap">
+                  <table class="sap-market-matrix">
+                    <thead><tr><th>Module</th>${workstreams.map((stream) => `<th>${stream.label}</th>`).join("")}<th>Total</th></tr></thead>
+                    <tbody>
+                      ${intelligence
+                        .map(
+                          (item) => `
+                            <tr>
+                              <th><button type="button" data-module-filter="${esc(item.module)}">${esc(item.module)}</button></th>
+                              ${workstreams
+                                .map((stream) => {
+                                  const count = item.jobs.filter((job) =>
+                                    stream.id === "Other"
+                                      ? !["Functional", "Technical", "Leadership"].includes(job.group)
+                                      : job.group === stream.id
+                                  ).length;
+                                  return `<td>${
+                                    count
+                                      ? `<button type="button" data-market-cell data-market-cell-module="${esc(item.module)}"
+                                          data-market-cell-group="${stream.id}">${count}</button>`
+                                      : "<span>—</span>"
+                                  }</td>`;
+                                })
+                                .join("")}
+                              <td><button type="button" data-module-filter="${esc(item.module)}">${item.count}</button></td>
+                            </tr>`
+                        )
+                        .join("")}
+                    </tbody>
+                  </table>
+                </div>`
+              : `<div class="sap-market-empty">No module and workstream combinations match these filters.</div>`
+          }
+        </section>
+
+        <section class="sap-market-signals" aria-label="Market signals">
+          <article>
+            <div class="signal-heading"><span>${icon("pulse")}</span><h2>Hot modules</h2></div>
+            ${hottest.length ? hottest.map((item, index) => `<button type="button" data-module-filter="${esc(item.module)}"><b>${index + 1}</b><span>${esc(item.module)}</span><small>${item.count} live</small>${icon("chevron-right")}</button>`).join("") : "<p>No matching activity.</p>"}
+          </article>
+          <article>
+            <div class="signal-heading"><span>${icon("plus")}</span><h2>Recently added</h2></div>
+            ${recentlyAdded.length ? recentlyAdded.map((job) => `<button type="button" data-module-filter="${esc(job.module)}"><span>${esc(job.module)}</span><small>${esc(job.title)}</small>${icon("chevron-right")}</button>`).join("") : "<p>No matching additions.</p>"}
+          </article>
+          <article>
+            <div class="signal-heading"><span>${icon("globe")}</span><h2>Remote demand</h2></div>
+            ${remoteIntelligence.length ? remoteIntelligence.map((item, index) => `<button type="button" data-module-filter="${esc(item.module)}"><b>${index + 1}</b><span>${esc(item.module)}</span><small>${item.count} remote</small>${icon("chevron-right")}</button>`).join("") : "<p>No remote roles match.</p>"}
+          </article>
+          <article>
+            <div class="signal-heading"><span>${icon("location")}</span><h2>Top locations</h2></div>
+            ${topLocations.length ? topLocations.map((item, index) => `<button type="button" data-market-region-filter="${item.id}"><b>${index + 1}</b><span>${esc(item.label)}</span><small>${item.count}</small>${icon("chevron-right")}</button>`).join("") : "<p>No location signals.</p>"}
+          </article>
+        </section>
+      </section>`;
+  }
+
+  function renderModulesLegacy() {
     const intelligence = moduleIntelligence();
     const actualModules = new Map(intelligence.map((item) => [item.module, item.count]));
     const sapJobs = data.jobs.filter((job) => job.stream === "SAP");
@@ -1525,9 +1798,61 @@
       return;
     }
 
+    const marketCell = event.target.closest("[data-market-cell]");
+    if (marketCell) {
+      setFeedRoute({
+        q: "",
+        category: "sap",
+        region: state.market.region,
+        module: marketCell.dataset.marketCellModule,
+        group: marketCell.dataset.marketCellGroup,
+        workMode: state.market.workMode,
+        source: "all",
+        employment: state.market.employment
+      });
+      return;
+    }
+
+    const marketRegion = event.target.closest("[data-market-region-filter]");
+    if (marketRegion) {
+      state.market.region = marketRegion.dataset.marketRegionFilter;
+      render();
+      return;
+    }
+
+    if (event.target.closest("[data-market-all-workstreams]")) {
+      setFeedRoute({
+        q: "",
+        category: "sap",
+        region: state.market.region,
+        module: "all",
+        group: "all",
+        workMode: state.market.workMode,
+        source: "all",
+        employment: state.market.employment
+      });
+      return;
+    }
+
+    if (event.target.closest("[data-clear-market-filters]")) {
+      state.market = { region: "all", employment: "all", workMode: "all" };
+      render();
+      return;
+    }
+
     const moduleFilter = event.target.closest("[data-module-filter]");
     if (moduleFilter) {
-      setFeedRoute({ q: "", category: "sap", region: "all", module: moduleFilter.dataset.moduleFilter, group: "all", workMode: "all", source: "all", employment: "all" });
+      const fromMarket = Boolean(moduleFilter.closest(".sap-market-page"));
+      setFeedRoute({
+        q: "",
+        category: "sap",
+        region: fromMarket ? state.market.region : "all",
+        module: moduleFilter.dataset.moduleFilter,
+        group: "all",
+        workMode: fromMarket ? state.market.workMode : "all",
+        source: "all",
+        employment: fromMarket ? state.market.employment : "all"
+      });
       return;
     }
 
@@ -1539,6 +1864,19 @@
 
     const groupFilter = event.target.closest("[data-group-filter]");
     if (groupFilter) {
+      if (groupFilter.closest(".sap-market-page")) {
+        setFeedRoute({
+          q: "",
+          category: "sap",
+          region: state.market.region,
+          module: "all",
+          group: groupFilter.dataset.groupFilter,
+          workMode: state.market.workMode,
+          source: "all",
+          employment: state.market.employment
+        });
+        return;
+      }
       selectGroup(groupFilter.dataset.groupFilter);
       return;
     }
@@ -1566,6 +1904,13 @@
     }
 
     const select = event.target.closest("[data-feed-select]");
+    const marketSelect = event.target.closest("[data-market-select]");
+    if (marketSelect) {
+      state.market[marketSelect.dataset.marketSelect] = marketSelect.value;
+      render();
+      return;
+    }
+
     if (!select) return;
     const key = select.dataset.feedSelect;
     const partial = { [key]: select.value };

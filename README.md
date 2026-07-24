@@ -10,8 +10,7 @@ Open `index.html`, then choose **Open Talent Radar**. For direct access, open `d
 
 - **Home** — dynamically filtered regional opportunity map, snapshot totals, market spotlights, and permanent/contract drill-downs
 - **Feed** — 40 verified public listings in date sequence with a dedicated filter sidebar for permanent, contract, temporary, on-site, hybrid, remote, SAP module and non-SAP views
-- **SAP modules** — market-intelligence view with live demand ranking, 14-day momentum, location and work-mode mixes, advertised rate evidence, the complete 26-tag taxonomy, and one-click feed drill-downs
-- **Workstreams** — Technical, Functional, Leadership, and Other / unclassified drill-downs
+- **SAP Market** — merged module and workstream overview with live demand ranking, workstream distribution, a module × workstream matrix, market signals, filters and one-click Feed drill-downs
 - **Watchlist** — locally saved opportunities
 - **Settings** — source verification status and local-data controls
 

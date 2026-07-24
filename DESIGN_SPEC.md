@@ -12,12 +12,11 @@
 
 1. Home
 2. Feed
-3. SAP modules
-4. Workstreams
-5. Watchlist
-6. Settings
+3. SAP Market
+4. Watchlist
+5. Settings
 
-`SAP modules` replaces the ambiguous `Modules` label.
+`SAP Market` merges the former SAP Modules and Workstreams pages.
 
 ## Home
 
@@ -48,19 +47,19 @@
 - Every card includes verification date, posting age, location, tags, work arrangement and watchlist control
 - Application actions open the exact verified public listing
 
-## SAP module intelligence
+## SAP Market
 
-- Rank active SAP modules by verified live-role count
-- Show current momentum using listings first seen during the last 14 days
-- Identify the three hottest modules from live count and recent activity
-- Show leading locations and work-arrangement counts for every active module
-- Show numeric hourly or daily rates exactly as advertised; never blend incompatible rate types
-- Every module row and highlight drills into the Feed with that module selected
-- Retain the full 26-tag taxonomy beneath the live intelligence view
+- Full-width overview combining SAP module demand and workstream distribution
+- Region, employment and work-arrangement filters update all market components
+- Four summary metrics: opportunities, active modules, hybrid roles and contract roles
+- Ranked module table with relative-demand bars
+- Workstream mix for Functional, Technical, Leadership and Other roles
+- Full module × workstream matrix covering every module with active demand
+- Bottom market-signal strip for hot modules, recently added roles, remote demand and top locations
+- Module rows, workstream rows, matrix cells and signal rows drill into the Feed with matching filters applied
 
 ## Supporting views
 
-- **Workstreams:** broad capability drill-down into the same Feed
 - **Watchlist:** saved job records only
 - **Settings:** source status, verification details and local watchlist controls
 
