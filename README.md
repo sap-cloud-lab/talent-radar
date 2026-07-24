@@ -9,7 +9,7 @@ Open `index.html`, then choose **Open Talent Radar**. For direct access, open `d
 ## Product views
 
 - **Home** — regional opportunity map, snapshot totals and market spotlights
-- **Feed** — 13 verified public listings in date sequence with search, source, workstream, SAP sub-module and work-arrangement filters
+- **Feed** — 40 verified public listings in date sequence with search, source, workstream, SAP sub-module and work-arrangement filters
 - **SAP modules** — the 26-tag SAP taxonomy with matching live-role counts
 - **Workstreams** — Technical, Functional, Leadership, and Other / unclassified drill-downs
 - **Watchlist** — locally saved opportunities
@@ -20,12 +20,12 @@ Open `index.html`, then choose **Open Talent Radar**. For direct access, open `d
 - Remote-only roles are highlighted in green and have a one-click **Remote AU/NZ** filter.
 - Every record is labelled **Remote**, **Hybrid**, **On-site**, **FIFO / site-based**, or **Not stated**.
 - Non-SAP records are classified as **All other jobs**.
-- Every SEEK and LinkedIn action opens the exact public listing that was checked.
+- Every application action opens the exact public listing that was checked.
 - Watchlist choices use browser local storage and are not synced externally.
 
 ## Data boundary
 
-The displayed roles are public SEEK and LinkedIn Jobs listings whose Apply or Quick Apply control was checked on 24 July 2026. Email alerts, recruiter messages, historical inbox records and closed listings are excluded.
+The displayed roles come from verified public job boards, specialist recruiters and direct employer career sites. Each included application page was checked on 24 July 2026. Email alerts, recruiter messages, historical inbox records, expired pages and closed listings are excluded.
 
 The static prototype does not scrape job boards or run a scheduler. Availability can change after the verification date, so users should confirm the linked source before applying.
 

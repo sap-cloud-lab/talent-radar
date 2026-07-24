@@ -806,7 +806,7 @@
   }
 
   function renderSettings() {
-    const sourceRows = data.sources.filter((source) => ["seek", "linkedin", "adzuna"].includes(source.id));
+    const sourceRows = data.sources;
     return `
       <section class="page" data-page="settings">
         ${pageHeader({

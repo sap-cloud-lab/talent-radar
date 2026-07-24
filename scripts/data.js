@@ -109,6 +109,105 @@
       statusReason: "Apply was visible on each included listing on 24 July 2026.",
       lastImport: snapshotDate,
       recordCount: jobs.filter((job) => job.source === "LinkedIn Jobs").length
+    },
+    {
+      id: "sap-careers",
+      name: "SAP Careers",
+      type: "Direct employer careers site",
+      region: "Australia",
+      ingestionMethod: "Direct employer listing review",
+      status: "verified",
+      statusReason: "Apply now was visible on each included SAP career listing on 24 July 2026.",
+      lastImport: snapshotDate,
+      recordCount: jobs.filter((job) => job.source === "SAP Careers").length
+    },
+    {
+      id: "careerone",
+      name: "CareerOne",
+      type: "Public job board",
+      region: "Australia",
+      ingestionMethod: "Direct public listing review",
+      status: "verified",
+      statusReason: "Apply was visible on each included listing on 24 July 2026.",
+      lastImport: snapshotDate,
+      recordCount: jobs.filter((job) => job.source === "CareerOne").length
+    },
+    {
+      id: "jora",
+      name: "Jora",
+      type: "Public job aggregator",
+      region: "Australia",
+      ingestionMethod: "Direct public listing review",
+      status: "verified",
+      statusReason: "A current company-site application route was visible on 24 July 2026.",
+      lastImport: snapshotDate,
+      recordCount: jobs.filter((job) => job.source === "Jora").length
+    },
+    {
+      id: "speller",
+      name: "Speller International",
+      type: "Specialist SAP recruiter",
+      region: "Australia / New Zealand",
+      ingestionMethod: "Live recruiter search and direct application-page review",
+      status: "verified",
+      statusReason: "Each included role appeared in the live SAP search with Apply Now on 24 July 2026.",
+      lastImport: snapshotDate,
+      recordCount: jobs.filter((job) => job.source === "Speller International").length
+    },
+    {
+      id: "exclaim-it",
+      name: "Exclaim IT",
+      type: "Technology recruiter",
+      region: "Australia",
+      ingestionMethod: "Direct recruiter listing review",
+      status: "verified",
+      statusReason: "The listing page and its resume application form were active on 24 July 2026.",
+      lastImport: snapshotDate,
+      recordCount: jobs.filter((job) => job.source === "Exclaim IT").length
+    },
+    {
+      id: "peoplebank",
+      name: "Peoplebank",
+      type: "Technology recruiter",
+      region: "Australia",
+      ingestionMethod: "Direct recruiter listing review",
+      status: "verified",
+      statusReason: "Apply Now remained active on the included listing on 24 July 2026.",
+      lastImport: snapshotDate,
+      recordCount: jobs.filter((job) => job.source === "Peoplebank").length
+    },
+    {
+      id: "deloitte-careers",
+      name: "Deloitte Careers",
+      type: "Direct employer careers site",
+      region: "Australia",
+      ingestionMethod: "Direct employer listing review",
+      status: "verified",
+      statusReason: "Apply now was visible on the included employer listing on 24 July 2026.",
+      lastImport: snapshotDate,
+      recordCount: jobs.filter((job) => job.source === "Deloitte Careers").length
+    },
+    {
+      id: "indeed",
+      name: "Indeed",
+      type: "Public job board",
+      region: "Australia",
+      ingestionMethod: "Direct public listing review",
+      status: "verified",
+      statusReason: "A company-site application route was visible on the included listing on 24 July 2026.",
+      lastImport: snapshotDate,
+      recordCount: jobs.filter((job) => job.source === "Indeed").length
+    },
+    {
+      id: "michael-page",
+      name: "Michael Page",
+      type: "Professional recruiter",
+      region: "Australia",
+      ingestionMethod: "Live recruiter search and direct application-page review",
+      status: "verified",
+      statusReason: "Each included role appeared in the live SAP search with an active Apply control on 24 July 2026.",
+      lastImport: snapshotDate,
+      recordCount: jobs.filter((job) => job.source === "Michael Page").length
     }
   ];
 

@@ -27,7 +27,7 @@
 - AU/NZ map with Perth, Adelaide, Melbourne, Canberra, Sydney, Brisbane and New Zealand markers
 - Map markers drill directly into the Feed with the selected regional scope applied
 - Market spotlight accordion
-- 13 verified opportunities, 3 hot market signals and 26 SAP taxonomy tags
+- 40 verified opportunities, 3 hot market signals and 26 SAP taxonomy tags
 - Direct drill-down to the Feed
 
 ## Feed
@@ -39,7 +39,7 @@
 - Work-arrangement controls: Remote, Hybrid, On-site, FIFO and Not stated
 - Remote-only records use a green leading rail and pale-green card treatment
 - Every card includes verification date, posting age, location, tags, work arrangement and watchlist control
-- SEEK / LinkedIn actions open the exact public listing
+- Application actions open the exact verified public listing
 
 ## Supporting views
 

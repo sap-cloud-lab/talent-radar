@@ -1,4 +1,11 @@
 (function initialiseLandingPage() {
+  const verifiedJobCount = (window.TalentRadarLiveJobs || []).filter(
+    (job) => job.applyStatus === "open"
+  ).length;
+  document.querySelectorAll("[data-job-count]").forEach((element) => {
+    element.textContent = String(verifiedJobCount);
+  });
+
   const navToggle = document.querySelector(".nav-toggle");
   const navMenu = document.querySelector(".nav-menu");
 
@@ -45,7 +52,7 @@
 
     prototypeLink.setAttribute("aria-busy", "true");
     if (label) label.textContent = "Opening prototype…";
-    if (confirmation) confirmation.textContent = "13 verified listings ready.";
+    if (confirmation) confirmation.textContent = `${verifiedJobCount} verified listings ready.`;
 
     window.setTimeout(() => {
       window.location.assign(destination);
