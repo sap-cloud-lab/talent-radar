@@ -23,8 +23,11 @@
 
 - Heading: `Regional opportunity view`
 - 24 July 2026 verification label
-- Region tabs: All regions, Sydney, Melbourne, Remote
-- AU/NZ map with Perth, Adelaide, Melbourne, Canberra, Sydney, Brisbane and New Zealand markers
+- Region dropdown: All regions, Sydney, Melbourne, Adelaide, Canberra, Brisbane, Perth, New Zealand and Australia-wide
+- Map controls for Permanent and for On-site, Hybrid and Remote work arrangements
+- Opportunity total and every regional marker count update immediately from the selected filters
+- Selecting a region visually isolates its marker while retaining the full AU/NZ map for context
+- AU/NZ map with Perth, Adelaide, Melbourne, Canberra, Sydney, Brisbane, remote Australia and New Zealand markers
 - Map markers drill directly into the Feed with the selected regional scope applied
 - Market spotlight accordion
 - 40 verified opportunities, 3 hot market signals and 26 SAP taxonomy tags

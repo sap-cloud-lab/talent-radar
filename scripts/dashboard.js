@@ -34,6 +34,8 @@
   const state = {
     route: "overview",
     region: "all",
+    homeEmployment: "all",
+    homeWorkMode: "all",
     spotlight: "sydney",
     watchlist: readWatchlist(),
     feed: {
@@ -133,6 +135,13 @@
       label: "New Zealand",
       tone: "teal",
       marker: { x: 737, y: 366, labelX: 600, labelY: 348, width: 128, lineX: 728 }
+    },
+    {
+      id: "remote-au",
+      region: "australia-wide",
+      label: "Remote AU",
+      tone: "teal",
+      marker: { x: 310, y: 242, labelX: 190, labelY: 218, width: 108, lineX: 298 }
     }
   ];
 
@@ -183,6 +192,35 @@
     };
     const pattern = cityPatterns[region];
     return Boolean(pattern && (pattern.test(location) || australiaWide || australiaRemote));
+  }
+
+  function mapRegionMatchesJob(job, region) {
+    if (region === "all") return true;
+
+    const location = (job.location || "").trim().toLowerCase();
+    if (region === "australia-wide") {
+      return (
+        /^(all )?australia$/.test(location) ||
+        (normaliseWorkMode(job.workMode) === "remote" &&
+          (job.region === "AU" || location.includes("australia")))
+      );
+    }
+    if (region === "new-zealand") {
+      return (
+        job.region === "NZ" ||
+        /\b(new zealand|auckland|wellington|christchurch)\b/.test(location)
+      );
+    }
+
+    const cityPatterns = {
+      sydney: /\b(sydney|blacktown)\b/,
+      melbourne: /\b(melbourne|clayton|moorabbin)\b/,
+      adelaide: /\badelaide\b/,
+      canberra: /\b(canberra|act)\b/,
+      brisbane: /\bbrisbane\b/,
+      perth: /\b(perth|western australia|wa)\b/
+    };
+    return Boolean(cityPatterns[region]?.test(location));
   }
 
   function readWatchlist() {
@@ -272,6 +310,29 @@
 
   function renderHome() {
     const selected = spotlights.find((item) => item.id === state.spotlight) || spotlights[0];
+    const mapJobs = data.jobs
+      .filter((job) => job.stream === "SAP" && job.applyStatus === "open" && job.sourceUrl)
+      .filter(
+        (job) =>
+          state.homeEmployment === "all" || employmentTypeForJob(job) === state.homeEmployment
+      )
+      .filter(
+        (job) => state.homeWorkMode === "all" || normaliseWorkMode(job.workMode) === state.homeWorkMode
+      );
+    const visibleMapJobs = mapJobs.filter((job) => mapRegionMatchesJob(job, state.region));
+    const regionOptions = feedRegions;
+    const activeRegionLabel = regionOptions.find(([value]) => value === state.region)?.[1] || "All regions";
+    const activeScope = [
+      activeRegionLabel,
+      state.homeEmployment === "permanent" ? "Permanent" : "",
+      state.homeWorkMode === "onsite"
+        ? "On-site"
+        : state.homeWorkMode === "hybrid"
+          ? "Hybrid"
+          : state.homeWorkMode === "remote"
+            ? "Remote"
+            : ""
+    ].filter(Boolean);
     const permanentCount = data.jobs.filter((job) => employmentTypeForJob(job) === "permanent").length;
     const contractCount = data.jobs.filter((job) => employmentTypeForJob(job) === "contract").length;
     return `
@@ -281,26 +342,64 @@
           subtitle: "A high-level view of SAP talent opportunities across Australia and New Zealand."
         })}
 
-        <div class="region-tabs" role="tablist" aria-label="Regional opportunity view">
-          ${[
-            ["all", "All regions"],
-            ["sydney", "Sydney"],
-            ["melbourne", "Melbourne"],
-            ["remote", "Remote"]
-          ]
-            .map(
-              ([id, label]) => `
-                <button class="region-tab ${state.region === id ? "active" : ""}" type="button"
-                  role="tab" aria-selected="${state.region === id}" data-region="${id}">${label}</button>`
-            )
-            .join("")}
+        <div class="map-filter-bar" aria-label="Map filters">
+          <label class="map-region-select">
+            <span>Region</span>
+            <select data-home-region aria-label="Region">
+              ${regionOptions
+                .map(
+                  ([value, label]) =>
+                    `<option value="${value}" ${state.region === value ? "selected" : ""}>${label}</option>`
+                )
+                .join("")}
+            </select>
+          </label>
+
+          <div class="map-filter-group" aria-label="Employment type">
+            <span>Employment</span>
+            <div>
+              ${[
+                ["all", "All roles"],
+                ["permanent", "Permanent"]
+              ]
+                .map(
+                  ([value, label]) => `
+                    <button class="${state.homeEmployment === value ? "active" : ""}" type="button"
+                      aria-pressed="${state.homeEmployment === value}" data-home-employment="${value}">${label}</button>`
+                )
+                .join("")}
+            </div>
+          </div>
+
+          <div class="map-filter-group work-mode" aria-label="Work arrangement">
+            <span>Work arrangement</span>
+            <div>
+              ${[
+                ["all", "All"],
+                ["onsite", "On-site"],
+                ["hybrid", "Hybrid"],
+                ["remote", "Remote"]
+              ]
+                .map(
+                  ([value, label]) => `
+                    <button class="${state.homeWorkMode === value ? "active" : ""}" type="button"
+                      aria-pressed="${state.homeWorkMode === value}" data-home-mode="${value}">${label}</button>`
+                )
+                .join("")}
+            </div>
+          </div>
+
+          <button class="map-filter-reset" type="button" data-clear-map-filters>Reset</button>
         </div>
 
         <div class="explorer-grid">
           <div class="map-panel">
-            <div class="opportunity-count"><strong>${data.jobs.length}</strong><span>opportunities</span></div>
+            <div class="opportunity-count">
+              <div><strong>${visibleMapJobs.length}</strong><span>${visibleMapJobs.length === 1 ? "opportunity" : "opportunities"}</span></div>
+              <small>${esc(activeScope.join(" · "))}</small>
+            </div>
             <div class="map-glow" aria-hidden="true"></div>
-            ${renderMap(selected.id)}
+            ${renderMap(mapJobs)}
           </div>
 
           <aside class="spotlight-panel" aria-label="Market spotlight">
@@ -359,15 +458,15 @@
       </section>`;
   }
 
-  function renderMap(selectedId) {
+  function renderMap(mapJobs) {
     // Coastline paths are projected from Natural Earth 1:50m country geometry
     // published through Geoscience Australia's Natural_Earth_Countries service.
     const markers = mapRegions
       .map((item) => {
         const { x, y, labelX, labelY, width, lineX } = item.marker;
-        const count = data.jobs.filter(
-          (job) => job.stream === "SAP" && regionMatchesJob(job, item.region)
-        ).length;
+        const count = mapJobs.filter((job) => mapRegionMatchesJob(job, item.region)).length;
+        const isSelected = state.region === item.region;
+        const isMuted = state.region !== "all" && !isSelected;
         const color =
           item.tone === "coral"
             ? "#ef5e55"
@@ -377,7 +476,7 @@
                 ? "#39967c"
                 : "#2874ad";
         return `
-          <g class="map-marker ${selectedId === item.id ? "active" : ""}" role="button" tabindex="0"
+          <g class="map-marker ${isSelected ? "active" : ""} ${isMuted ? "muted" : ""}" role="button" tabindex="0"
             aria-label="Open ${esc(item.label)} in the feed, ${count} verified SAP ${count === 1 ? "role" : "roles"}"
             data-map-region="${item.region}">
             <line x1="${x}" y1="${y}" x2="${lineX}" y2="${labelY + 14}"></line>
@@ -391,8 +490,8 @@
       .join("");
 
     return `
-      <svg class="region-map ${state.region === "all" ? "" : "dim"}" viewBox="0 0 850 520" role="img"
-        aria-label="Map of Australia and New Zealand with SAP opportunity markers in Perth, Adelaide, Melbourne, Canberra, Sydney, Brisbane, and New Zealand">
+      <svg class="region-map ${state.region === "all" ? "" : "region-selected"}" viewBox="0 0 850 520" role="img"
+        aria-label="Map of Australia and New Zealand with SAP opportunity markers in Perth, Adelaide, Melbourne, Canberra, Sydney, Brisbane, remote Australia, and New Zealand">
         <defs>
           <linearGradient id="map-gradient" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0" stop-color="#d9ebfa"></stop>
@@ -1324,6 +1423,28 @@
       return;
     }
 
+    const homeEmployment = event.target.closest("[data-home-employment]");
+    if (homeEmployment) {
+      state.homeEmployment = homeEmployment.dataset.homeEmployment;
+      render();
+      return;
+    }
+
+    const homeMode = event.target.closest("[data-home-mode]");
+    if (homeMode) {
+      state.homeWorkMode = homeMode.dataset.homeMode;
+      render();
+      return;
+    }
+
+    if (event.target.closest("[data-clear-map-filters]")) {
+      state.region = "all";
+      state.homeEmployment = "all";
+      state.homeWorkMode = "all";
+      render();
+      return;
+    }
+
     const mapRegion = event.target.closest("[data-map-region]");
     if (mapRegion) {
       setFeedRoute({
@@ -1342,7 +1463,6 @@
     const spotlight = event.target.closest("[data-spotlight]");
     if (spotlight) {
       state.spotlight = spotlight.dataset.spotlight;
-      state.region = state.spotlight;
       render();
       return;
     }
@@ -1437,6 +1557,14 @@
   });
 
   document.body.addEventListener("change", (event) => {
+    const homeRegion = event.target.closest("[data-home-region]");
+    if (homeRegion) {
+      state.region = homeRegion.value;
+      if (["sydney", "melbourne"].includes(state.region)) state.spotlight = state.region;
+      render();
+      return;
+    }
+
     const select = event.target.closest("[data-feed-select]");
     if (!select) return;
     const key = select.dataset.feedSelect;
