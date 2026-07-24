@@ -281,14 +281,25 @@
   }
 
   function snapshot() {
-    return `<span class="snapshot">${icon("calendar")}<span>Checked 24 Jul 2026</span></span>`;
+    return `<span class="snapshot">${icon("calendar")}<span>Checked ${esc(
+      formatRecordDate(data.meta.lastLiveImport)
+    )}</span></span>`;
   }
 
   function archiveNote() {
+    const hasRecruiterDiscoveries = data.jobs.some(
+      (job) => job.discoverySource === "Public recruiter post"
+    );
     return `
       <div class="archive-note">
         ${icon("shield")}
-        <span><strong>Application checked:</strong> every role links to a public listing that showed Apply on 24 Jul 2026.</span>
+        <span><strong>Application checked:</strong> ${
+          hasRecruiterDiscoveries
+            ? "direct listings and fresh public recruiter vacancies are included only after an open application route is confirmed."
+            : `every role links to a public listing that showed Apply when checked on ${esc(
+                formatRecordDate(data.meta.lastLiveImport)
+              )}.`
+        }</span>
       </div>`;
   }
 
@@ -892,6 +903,8 @@
     const saved = state.watchlist.has(job.id);
     const modeIcon = mode === "remote" ? "globe" : mode === "hybrid" ? "home" : mode === "fifo" ? "location" : "briefcase";
     const displayDate = formatRecordDate(job.firstSeen);
+    const recruiterPostOnly = job.applicationRoute === "public-recruiter-post";
+    const verificationLabel = recruiterPostOnly ? "Recruiter post verified" : "Apply link verified";
     return `
       <article class="job-card ${mode === "remote" ? "remote" : ""}" data-job-id="${esc(job.id)}">
         <div>
@@ -905,7 +918,7 @@
                   )}</span>`
                 : ""
             }
-            <span class="badge archive">${icon("shield")}Apply link verified</span>
+            <span class="badge archive">${icon("shield")}${verificationLabel}</span>
             ${job.stream === "Other" ? `<span class="badge onsite">All other jobs</span>` : ""}
           </div>
           <h2>${esc(job.title)}</h2>
@@ -928,9 +941,11 @@
           <button class="secondary-action ${saved ? "saved" : ""}" type="button" data-watch-job="${esc(job.id)}">
             ${icon("bookmark")}${saved ? "Saved to watchlist" : "Save to watchlist"}
           </button>
-          <p class="source-caveat">${esc(job.source)} application page checked ${esc(
-            formatRecordDate(job.verifiedAt)
-          )}. The source opens only for MFA, CAPTCHA or final submission.</p>
+          <p class="source-caveat">${
+            recruiterPostOnly
+              ? `Public recruiter vacancy checked ${esc(formatRecordDate(job.verifiedAt))}.`
+              : `${esc(job.source)} application page checked ${esc(formatRecordDate(job.verifiedAt))}.`
+          } The source opens only for MFA, CAPTCHA or final submission.</p>
         </div>
       </article>`;
   }
@@ -976,6 +991,9 @@
     const displayDate = formatRecordDate(job.firstSeen);
     const modeIcon = mode === "remote" ? "globe" : mode === "hybrid" ? "home" : mode === "fifo" ? "location" : "briefcase";
     const focus = jobDetailFocus(job);
+    const responsibilities = (job.responsibilities || []).filter(Boolean);
+    const requirements = (job.requirements || []).filter(Boolean);
+    const recruiterPostOnly = job.applicationRoute === "public-recruiter-post";
     const skills = [job.module, ...(job.skills || [])].filter(
       (item, index, values) => item && values.indexOf(item) === index
     );
@@ -996,7 +1014,9 @@
                       )}</span>`
                     : ""
                 }
-                <span class="badge archive">${icon("shield")}Application verified</span>
+                <span class="badge archive">${icon("shield")}${
+                  recruiterPostOnly ? "Recruiter vacancy verified" : "Application verified"
+                }</span>
               </div>
               <h1>${esc(job.title)}</h1>
               <p class="job-detail-company">${esc(job.company)}</p>
@@ -1021,9 +1041,24 @@
             <section class="job-description-section">
               <h2>What you will work on</h2>
               <ul class="job-detail-list">
-                ${focus.map((item) => `<li>${icon("check-circle")}<span>${esc(item)}</span></li>`).join("")}
+                ${(responsibilities.length ? responsibilities : focus)
+                  .map((item) => `<li>${icon("check-circle")}<span>${esc(item)}</span></li>`)
+                  .join("")}
               </ul>
             </section>
+
+            ${
+              requirements.length
+                ? `<section class="job-description-section">
+                    <h2>What the recruiter is looking for</h2>
+                    <ul class="job-detail-list">
+                      ${requirements
+                        .map((item) => `<li>${icon("check-circle")}<span>${esc(item)}</span></li>`)
+                        .join("")}
+                    </ul>
+                  </section>`
+                : ""
+            }
 
             <section class="job-description-section">
               <h2>Skills highlighted in the listing</h2>
@@ -1037,9 +1072,15 @@
               <div>${icon("shield")}</div>
               <div>
                 <h2>Source and application verification</h2>
-                <p><strong>${esc(job.source)}</strong> showed an active application path when checked on ${esc(
-                  formatRecordDate(job.verifiedAt)
-                )}.</p>
+                <p>${
+                  recruiterPostOnly
+                    ? `The <strong>public recruiter post</strong> was fresh, clearly advertised a live vacancy and supplied an application route when checked on ${esc(
+                        formatRecordDate(job.verifiedAt)
+                      )}.`
+                    : `<strong>${esc(job.source)}</strong> showed an active application path when checked on ${esc(
+                        formatRecordDate(job.verifiedAt)
+                      )}.`
+                }</p>
                 <p>The external source remains in the background. Talent Radar only opens it when MFA, CAPTCHA or final submission requires your involvement.</p>
               </div>
             </section>
@@ -1057,7 +1098,7 @@
             </button>
             <dl class="job-detail-status">
               <div><dt>Vacancy</dt><dd>Open when checked</dd></div>
-              <div><dt>Apply link</dt><dd>Verified</dd></div>
+              <div><dt>Application route</dt><dd>${recruiterPostOnly ? "Recruiter post" : "Verified link"}</dd></div>
               <div><dt>External handoff</dt><dd>Only when required</dd></div>
             </dl>
           </aside>
@@ -1761,13 +1802,15 @@
         <div class="settings-grid">
           <article class="settings-card">
             <h2>Source connections</h2>
-            <p>Only direct public job listings are included. Email alerts, recruiter InMail and historical inbox records are excluded.</p>
+            <p>Direct public listings and public recruiter-authored vacancy posts are supported. Email alerts, private recruiter messages and historical inbox records are excluded.</p>
             ${sourceRows
               .map(
                 (source) => `
                   <div class="source-row">
                     <div><strong>${esc(source.name)}</strong><span>${esc(source.ingestionMethod)}</span></div>
-                    <span class="status-pill">Verified 24 Jul</span>
+                    <span class="status-pill">${
+                      source.lastImport ? `Verified ${esc(formatRecordDate(source.lastImport))}` : "Setup needed"
+                    }</span>
                   </div>`
               )
               .join("")}
@@ -1777,7 +1820,9 @@
             <h2>Local preferences</h2>
             <p>Watchlist choices stay on this device and are not synced externally.</p>
             <div class="setting-list">
-              <div class="setting-line"><span>Last checked</span><strong>24 Jul 2026</strong></div>
+              <div class="setting-line"><span>Last checked</span><strong>${esc(
+                formatRecordDate(data.meta.lastLiveImport)
+              )}</strong></div>
               <div class="setting-line"><span>Coverage</span><strong>Australia & New Zealand</strong></div>
               <div class="setting-line"><span>Open listings</span><strong>${data.jobs.length}</strong></div>
               <div class="setting-line"><span>Saved roles</span><strong>${state.watchlist.size}</strong></div>

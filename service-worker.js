@@ -1,13 +1,14 @@
-const CACHE_NAME = "talent-radar-pwa-20260724v";
+const CACHE_NAME = "talent-radar-pwa-20260725b";
 const APP_SHELL = [
   "./dashboard.html",
   "./manifest.webmanifest",
-  "./styles/dashboard.css?v=20260724v",
-  "./scripts/shared.js?v=20260724v",
-  "./scripts/live-jobs.js?v=20260724v",
-  "./scripts/data.js?v=20260724v",
-  "./scripts/pwa.js?v=20260724v",
-  "./scripts/dashboard.js?v=20260724v",
+  "./styles/dashboard.css?v=20260725b",
+  "./scripts/shared.js?v=20260725b",
+  "./scripts/live-jobs.js?v=20260725b",
+  "./scripts/recruiter-post-jobs.js",
+  "./scripts/data.js?v=20260725b",
+  "./scripts/pwa.js?v=20260725b",
+  "./scripts/dashboard.js?v=20260725b",
   "./public/talent-radar-icon.svg",
   "./public/talent-radar-icon-180.png",
   "./public/talent-radar-icon-192.png",
@@ -43,6 +44,22 @@ self.addEventListener("fetch", (event) => {
           return response;
         })
         .catch(() => caches.match("./dashboard.html"))
+    );
+    return;
+  }
+
+  const requestUrl = new URL(event.request.url);
+  if (requestUrl.pathname.endsWith("/scripts/recruiter-post-jobs.js")) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request))
     );
     return;
   }

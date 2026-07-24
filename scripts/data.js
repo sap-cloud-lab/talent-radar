@@ -1,7 +1,9 @@
 (function initialiseTalentRadarData() {
   "use strict";
 
-  const snapshotDate = "2026-07-24";
+  const staticSnapshotDate = "2026-07-24";
+  const recruiterMeta = window.TalentRadarRecruiterMeta || {};
+  const snapshotDate = recruiterMeta.generatedDate || staticSnapshotDate;
   const sapGroups = [
     {
       id: "functional",
@@ -80,12 +82,27 @@
     )
   ];
 
-  const jobs = (window.TalentRadarLiveJobs || []).filter(
-    (job) =>
-      job.applyStatus === "open" &&
-      /^https:\/\//.test(job.sourceUrl || "") &&
-      !/inmail|email|recruiter message/i.test(`${job.source} ${job.provenance}`)
-  );
+  const mergedJobs = [
+    ...(window.TalentRadarLiveJobs || []),
+    ...(window.TalentRadarRecruiterJobs || [])
+  ];
+  const seenJobIds = new Set();
+  const seenApplicationUrls = new Set();
+  const jobs = mergedJobs.filter((job) => {
+    if (
+      job.applyStatus !== "open" ||
+      !/^https:\/\//.test(job.sourceUrl || "") ||
+      /inmail|email alert|private recruiter message/i.test(`${job.source} ${job.provenance}`)
+    ) {
+      return false;
+    }
+    const applicationUrl = job.sourceUrl.toLowerCase();
+    if (seenJobIds.has(job.id) || seenApplicationUrls.has(applicationUrl)) return false;
+    seenJobIds.add(job.id);
+    seenApplicationUrls.add(applicationUrl);
+    return true;
+  });
+  const recruiterJobs = jobs.filter((job) => job.discoverySource === "Public recruiter post");
 
   const sources = [
     {
@@ -96,7 +113,7 @@
       ingestionMethod: "Direct public listing review",
       status: "verified",
       statusReason: "Apply or Quick Apply was visible on each included listing on 24 July 2026.",
-      lastImport: snapshotDate,
+      lastImport: staticSnapshotDate,
       recordCount: jobs.filter((job) => job.source === "SEEK").length
     },
     {
@@ -107,7 +124,7 @@
       ingestionMethod: "Direct public listing review",
       status: "verified",
       statusReason: "Apply was visible on each included listing on 24 July 2026.",
-      lastImport: snapshotDate,
+      lastImport: staticSnapshotDate,
       recordCount: jobs.filter((job) => job.source === "LinkedIn Jobs").length
     },
     {
@@ -118,7 +135,7 @@
       ingestionMethod: "Direct employer listing review",
       status: "verified",
       statusReason: "Apply now was visible on each included SAP career listing on 24 July 2026.",
-      lastImport: snapshotDate,
+      lastImport: staticSnapshotDate,
       recordCount: jobs.filter((job) => job.source === "SAP Careers").length
     },
     {
@@ -129,7 +146,7 @@
       ingestionMethod: "Direct public listing review",
       status: "verified",
       statusReason: "Apply was visible on each included listing on 24 July 2026.",
-      lastImport: snapshotDate,
+      lastImport: staticSnapshotDate,
       recordCount: jobs.filter((job) => job.source === "CareerOne").length
     },
     {
@@ -140,7 +157,7 @@
       ingestionMethod: "Direct public listing review",
       status: "verified",
       statusReason: "A current company-site application route was visible on 24 July 2026.",
-      lastImport: snapshotDate,
+      lastImport: staticSnapshotDate,
       recordCount: jobs.filter((job) => job.source === "Jora").length
     },
     {
@@ -151,7 +168,7 @@
       ingestionMethod: "Live recruiter search and direct application-page review",
       status: "verified",
       statusReason: "Each included role appeared in the live SAP search with Apply Now on 24 July 2026.",
-      lastImport: snapshotDate,
+      lastImport: staticSnapshotDate,
       recordCount: jobs.filter((job) => job.source === "Speller International").length
     },
     {
@@ -162,7 +179,7 @@
       ingestionMethod: "Direct recruiter listing review",
       status: "verified",
       statusReason: "The listing page and its resume application form were active on 24 July 2026.",
-      lastImport: snapshotDate,
+      lastImport: staticSnapshotDate,
       recordCount: jobs.filter((job) => job.source === "Exclaim IT").length
     },
     {
@@ -173,7 +190,7 @@
       ingestionMethod: "Direct recruiter listing review",
       status: "verified",
       statusReason: "Apply Now remained active on the included listing on 24 July 2026.",
-      lastImport: snapshotDate,
+      lastImport: staticSnapshotDate,
       recordCount: jobs.filter((job) => job.source === "Peoplebank").length
     },
     {
@@ -184,7 +201,7 @@
       ingestionMethod: "Direct employer listing review",
       status: "verified",
       statusReason: "Apply now was visible on the included employer listing on 24 July 2026.",
-      lastImport: snapshotDate,
+      lastImport: staticSnapshotDate,
       recordCount: jobs.filter((job) => job.source === "Deloitte Careers").length
     },
     {
@@ -195,7 +212,7 @@
       ingestionMethod: "Direct public listing review",
       status: "verified",
       statusReason: "A company-site application route was visible on the included listing on 24 July 2026.",
-      lastImport: snapshotDate,
+      lastImport: staticSnapshotDate,
       recordCount: jobs.filter((job) => job.source === "Indeed").length
     },
     {
@@ -206,8 +223,21 @@
       ingestionMethod: "Live recruiter search and direct application-page review",
       status: "verified",
       statusReason: "Each included role appeared in the live SAP search with an active Apply control on 24 July 2026.",
-      lastImport: snapshotDate,
+      lastImport: staticSnapshotDate,
       recordCount: jobs.filter((job) => job.source === "Michael Page").length
+    },
+    {
+      id: "public-recruiter-posts",
+      name: "Public recruiter posts",
+      type: "Scheduled public-web discovery",
+      region: "Australia / New Zealand",
+      ingestionMethod: "AI web search, freshness checks, application-route validation and deduplication",
+      status: recruiterMeta.generatedAt ? "verified" : "awaiting-setup",
+      statusReason: recruiterMeta.generatedAt
+        ? `Last scheduled discovery reviewed ${recruiterMeta.sourcesReviewed || 0} public web sources.`
+        : "Add the OPENAI_API_KEY GitHub Actions secret and run the recruiter discovery workflow.",
+      lastImport: recruiterMeta.generatedDate || null,
+      recordCount: recruiterJobs.length
     }
   ];
 
@@ -216,15 +246,20 @@
       product: "Talent Radar",
       coverage: "AU/NZ",
       snapshotDate,
-      snapshotLabel: "Verified 24 July 2026",
-      dataState: "Verified public listings",
+      snapshotLabel: recruiterMeta.generatedDate
+        ? `Recruiter sources checked ${recruiterMeta.generatedDate}`
+        : "Verified 24 July 2026",
+      dataState: recruiterMeta.generatedDate
+        ? "Verified public listings and recruiter posts"
+        : "Verified public listings",
       confirmedInboxRecordCount: 0,
       sapTaxonomyTagCount: sapGroups.reduce((sum, group) => sum + group.modules.length, 0),
       sourceCount: sources.length,
       lastLiveImport: snapshotDate,
       priorityRule: "Prioritise recent, remote and multi-region roles from currently open public listings.",
-      disclaimer:
-        "Every displayed role was checked against its public application page on 24 July 2026. Email and recruiter-message records are excluded."
+      disclaimer: recruiterMeta.generatedDate
+        ? "Direct listings and fresh public recruiter-authored vacancies are included only after an open application route is found. Private messages, inbox records and email alerts are excluded."
+        : "Every displayed role was checked against its public application page on 24 July 2026. Email alerts and private recruiter messages are excluded."
     }),
     jobs: Object.freeze(jobs),
     pipeline: Object.freeze([]),

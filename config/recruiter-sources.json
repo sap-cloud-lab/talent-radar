@@ -1,0 +1,54 @@
+{
+  "coverage": ["Australia", "New Zealand"],
+  "maximumListingAgeDays": 30,
+  "maximumRecruiterPostOnlyAgeDays": 14,
+  "groups": [
+    {
+      "id": "sap-specialists",
+      "label": "SAP specialist recruiters",
+      "organisations": [
+        "Genesis IT Recruitment",
+        "Recruit I.T.",
+        "Speller International",
+        "Sapture",
+        "Precision Sourcing",
+        "Morgan Campbell",
+        "BT People"
+      ],
+      "people": [
+        "Costa Argirellis",
+        "Chris Reid",
+        "Robert Adams",
+        "Ervin Mehta"
+      ]
+    },
+    {
+      "id": "anz-technology-recruiters",
+      "label": "Australia and New Zealand technology recruiters",
+      "organisations": [
+        "Talent International",
+        "Absolute IT",
+        "Peoplebank",
+        "Paxus",
+        "Exclaim IT",
+        "The Network",
+        "Zone IT Solutions"
+      ],
+      "people": []
+    },
+    {
+      "id": "broad-professional-recruiters",
+      "label": "Broader professional recruiters advertising SAP work",
+      "organisations": [
+        "Hays",
+        "Michael Page",
+        "Randstad",
+        "Robert Walters",
+        "Hudson",
+        "Davidson",
+        "Bluefin Resources"
+      ],
+      "people": []
+    }
+  ]
+}
