@@ -3376,6 +3376,22 @@ button.secondary-action {
     --sidebar: min(84vw, 300px);
   }
 
+  html.home-route {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  body.home-route {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
   body.nav-open {
     overflow: hidden;
   }

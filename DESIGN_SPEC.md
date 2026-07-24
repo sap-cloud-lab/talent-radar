@@ -76,7 +76,7 @@
 - Installable through Safari **Add to Home Screen** and Android Chrome **Install app**
 - Standalone app display with Talent Radar icon, portrait orientation and cached application shell
 - Persistent Home, Feed, SAP, Saved and Profile navigation
-- Home is a fixed, map-first viewport: compact controls, result count and the full AU/NZ map remain visible together without scrolling
+- Home is a fixed, map-first viewport: compact controls, result count and the full AU/NZ map remain visible together without scrolling or rubber-band overscroll
 - Filter changes update the count and map in place; Permanent, Contract, On-site, Hybrid and Remote controls use the compact mobile treatment
 - The compact `Apply with AI` shortcut below the map carries the current Home filters into the opportunity Feed
 - Home contains no individual job promotion

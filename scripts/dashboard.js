@@ -293,6 +293,8 @@
 
   function render() {
     state.route = normaliseRoute(window.location.hash);
+    document.documentElement.classList.toggle("home-route", state.route === "overview");
+    document.body.classList.toggle("home-route", state.route === "overview");
     document.body.classList.toggle("feed-route", state.route === "opportunities");
     document.querySelectorAll("[data-route-link]").forEach((link) => {
       const active = link.dataset.routeLink === state.route;
