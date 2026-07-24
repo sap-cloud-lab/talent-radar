@@ -43,7 +43,8 @@
       module: "all",
       group: "all",
       workMode: "all",
-      source: "all"
+      source: "all",
+      employment: "all"
     }
   };
 
@@ -270,6 +271,8 @@
 
   function renderHome() {
     const selected = spotlights.find((item) => item.id === state.spotlight) || spotlights[0];
+    const permanentCount = data.jobs.filter((job) => employmentTypeForJob(job) === "permanent").length;
+    const contractCount = data.jobs.filter((job) => employmentTypeForJob(job) === "contract").length;
     return `
       <section class="page home-page" data-page="overview">
         ${pageHeader({
@@ -324,6 +327,34 @@
           </div>
           <a class="text-link home-feed-link" href="#opportunities">View opportunity feed ${icon("arrow-right")}</a>
         </footer>
+
+        <section class="employment-drilldowns" aria-labelledby="employment-drilldown-title">
+          <div class="employment-drilldown-copy">
+            <p class="panel-kicker">Explore by engagement</p>
+            <h2 id="employment-drilldown-title">Permanent or contract?</h2>
+            <p>Jump directly to roles where the source explicitly states the engagement type.</p>
+          </div>
+          <div class="employment-option-grid">
+            <button class="employment-option permanent" type="button" data-employment-filter="permanent">
+              <span class="employment-option-icon">${icon("briefcase")}</span>
+              <span>
+                <small>Long-term opportunities</small>
+                <strong>Permanent positions</strong>
+                <em>${permanentCount} verified ${permanentCount === 1 ? "role" : "roles"}</em>
+              </span>
+              ${icon("arrow-right")}
+            </button>
+            <button class="employment-option contract" type="button" data-employment-filter="contract">
+              <span class="employment-option-icon">${icon("clock")}</span>
+              <span>
+                <small>Projects and fixed terms</small>
+                <strong>Contract positions</strong>
+                <em>${contractCount} verified ${contractCount === 1 ? "role" : "roles"}</em>
+              </span>
+              ${icon("arrow-right")}
+            </button>
+          </div>
+        </section>
       </section>`;
   }
 
@@ -467,6 +498,18 @@
                 )
                 .join("")}
             </select>
+            <select class="filter-select" aria-label="Employment type" data-feed-select="employment">
+              ${[
+                ["all", "All employment types"],
+                ["permanent", "Permanent"],
+                ["contract", "Contract"]
+              ]
+                .map(
+                  ([value, label]) =>
+                    `<option value="${value}" ${state.feed.employment === value ? "selected" : ""}>${label}</option>`
+                )
+                .join("")}
+            </select>
           </div>
 
           <div class="workmode-chips" aria-label="Work arrangement">
@@ -514,6 +557,7 @@
           return false;
         if (state.feed.source !== "all" && job.source !== state.feed.source) return false;
         if (state.feed.workMode !== "all" && normaliseWorkMode(job.workMode) !== state.feed.workMode) return false;
+        if (state.feed.employment !== "all" && employmentTypeForJob(job) !== state.feed.employment) return false;
         if (!query) return true;
         const haystack = [
           job.title,
@@ -542,10 +586,16 @@
           : state.feed.region === "australia-wide"
             ? " · Australia-wide roles"
             : ` · ${selectedRegion ? selectedRegion[1] : "Selected region"} roles`;
+    const employmentScope =
+      state.feed.employment === "permanent"
+        ? " · Permanent roles"
+        : state.feed.employment === "contract"
+          ? " · Contract roles"
+          : "";
     return `
       <div class="feed-summary">
         <div><strong>${jobs.length} ${jobs.length === 1 ? "opportunity" : "opportunities"}</strong>
-          <span>${regionScope} · newest public listing first</span></div>
+          <span>${regionScope}${employmentScope} · newest public listing first</span></div>
         <button class="clear-filters" type="button" data-clear-filters>Clear filters</button>
       </div>
       ${
@@ -602,6 +652,13 @@
     if (mode.includes("hybrid")) return "hybrid";
     if (mode.includes("fifo")) return "fifo";
     if (mode.includes("on-site") || mode.includes("onsite") || mode.includes("office")) return "onsite";
+    return "not-stated";
+  }
+
+  function employmentTypeForJob(job) {
+    const description = `${job.engagement || ""} ${job.type || ""}`.toLowerCase();
+    if (/\b(contract|temporary|fixed[\s-]?term|day rate|hourly)\b/.test(description)) return "contract";
+    if (/\b(permanent|regular full time)\b/.test(description)) return "permanent";
     return "not-stated";
   }
 
@@ -1052,10 +1109,10 @@
 
   function selectGroup(group) {
     if (group === "Other") {
-      setFeedRoute({ category: "all", region: "all", module: "all", group: "Other", workMode: "all", q: "" });
+      setFeedRoute({ category: "all", region: "all", module: "all", group: "Other", workMode: "all", employment: "all", q: "" });
       return;
     }
-    setFeedRoute({ q: "", category: "sap", region: "all", module: "all", group, workMode: "all", source: "all" });
+    setFeedRoute({ q: "", category: "sap", region: "all", module: "all", group, workMode: "all", source: "all", employment: "all" });
   }
 
   function toggleWatchlist(id) {
@@ -1074,7 +1131,7 @@
   }
 
   function clearFilters() {
-    state.feed = { q: "", category: "all", region: "all", module: "all", group: "all", workMode: "all", source: "all" };
+    state.feed = { q: "", category: "all", region: "all", module: "all", group: "all", workMode: "all", source: "all", employment: "all" };
     render();
   }
 
@@ -1101,7 +1158,8 @@
         module: "all",
         group: "all",
         workMode: "all",
-        source: "all"
+        source: "all",
+        employment: "all"
       });
       return;
     }
@@ -1135,6 +1193,21 @@
       return;
     }
 
+    const employmentFilter = event.target.closest("[data-employment-filter]");
+    if (employmentFilter) {
+      setFeedRoute({
+        q: "",
+        category: "all",
+        region: "all",
+        module: "all",
+        group: "all",
+        workMode: "all",
+        source: "all",
+        employment: employmentFilter.dataset.employmentFilter
+      });
+      return;
+    }
+
     const watch = event.target.closest("[data-watch-job]");
     if (watch) {
       toggleWatchlist(watch.dataset.watchJob);
@@ -1143,13 +1216,13 @@
 
     const moduleFilter = event.target.closest("[data-module-filter]");
     if (moduleFilter) {
-      setFeedRoute({ q: "", category: "sap", region: "all", module: moduleFilter.dataset.moduleFilter, group: "all", workMode: "all", source: "all" });
+      setFeedRoute({ q: "", category: "sap", region: "all", module: moduleFilter.dataset.moduleFilter, group: "all", workMode: "all", source: "all", employment: "all" });
       return;
     }
 
     const categoryFilter = event.target.closest("[data-category-filter]");
     if (categoryFilter) {
-      setFeedRoute({ q: "", category: categoryFilter.dataset.categoryFilter, region: "all", module: "all", group: "all", workMode: "all", source: "all" });
+      setFeedRoute({ q: "", category: categoryFilter.dataset.categoryFilter, region: "all", module: "all", group: "all", workMode: "all", source: "all", employment: "all" });
       return;
     }
 
@@ -1206,7 +1279,8 @@
         module: "all",
         group: "all",
         workMode: "all",
-        source: "all"
+        source: "all",
+        employment: "all"
       });
     }
   });

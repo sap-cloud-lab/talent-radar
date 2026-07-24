@@ -28,6 +28,7 @@
 - Map markers drill directly into the Feed with the selected regional scope applied
 - Market spotlight accordion
 - 40 verified opportunities, 3 hot market signals and 26 SAP taxonomy tags
+- Permanent and contract cards at the bottom drill into the Feed with the employment type selected
 - Direct drill-down to the Feed
 
 ## Feed
@@ -36,6 +37,7 @@
 - Search by role, company, location, module or skill
 - Category controls: All opportunities, SAP jobs, All other jobs
 - SAP sub-module, workstream and source filters
+- Employment-type filter for explicitly advertised permanent and contract roles
 - Work-arrangement controls: Remote, Hybrid, On-site, FIFO and Not stated
 - Remote-only records use a green leading rail and pale-green card treatment
 - Every card includes verification date, posting age, location, tags, work arrangement and watchlist control
