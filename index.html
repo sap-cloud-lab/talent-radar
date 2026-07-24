@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en-AU">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Talent Radar brings AU/NZ SAP opportunity signals into one clear, module-level view.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Talent Radar — AU/NZ opportunity intelligence">
+    <meta property="og:description" content="Turn scattered SAP signals into a market advantage with a clear view of inbox-confirmed roles and early AU/NZ transformation signals.">
+    <meta property="og:image" content="https://sap-cloud-lab.github.io/talent-radar/public/og.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Talent Radar — AU/NZ opportunity intelligence">
+    <meta name="twitter:description" content="A modern prototype for reviewing AU/NZ SAP and ERP opportunity signals.">
+    <meta name="twitter:image" content="https://sap-cloud-lab.github.io/talent-radar/public/og.png">
+    <title>Talent Radar — AU/NZ SAP opportunity intelligence</title>
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="stylesheet" href="styles/landing.css">
+  </head>
+  <body class="landing-page">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <header class="site-header">
+      <nav class="site-nav shell" aria-label="Primary navigation">
+        <a class="brand-lockup" href="index.html" aria-label="Talent Radar home">
+          <svg class="brand-mark icon" aria-hidden="true"><use href="#i-radar"></use></svg>
+          <span class="brand-copy">
+            <span class="brand-name">Talent Radar</span>
+            <span class="brand-region">AU/NZ</span>
+          </span>
+        </a>
+
+        <button
+          class="nav-toggle icon-button"
+          type="button"
+          aria-expanded="false"
+          aria-controls="primary-menu"
+          aria-label="Open navigation"
+        >
+          <svg class="icon nav-toggle-open" aria-hidden="true"><use href="#i-menu"></use></svg>
+          <svg class="icon nav-toggle-close" aria-hidden="true"><use href="#i-x"></use></svg>
+        </button>
+
+        <div class="nav-menu" id="primary-menu">
+          <a href="#product">Product</a>
+          <a href="#coverage">Coverage</a>
+          <a href="#workstreams">Workstreams</a>
+          <a href="#method">Method</a>
+          <a class="button button-primary nav-prototype" href="dashboard.html#overview">
+            Open prototype
+          </a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main-content">
+      <section class="hero" id="product" aria-labelledby="hero-title">
+        <div class="hero-radar" aria-hidden="true"></div>
+        <div class="hero-inner shell">
+          <div class="hero-copy">
+            <p class="snapshot-label">
+              <span class="snapshot-dot" aria-hidden="true"></span>
+              Prototype · May 2026 inbox snapshot
+            </p>
+            <h1 id="hero-title">Turn scattered SAP signals into a market advantage.</h1>
+            <p class="hero-intro">
+              One clear view of inbox-confirmed roles, recruiter outreach and early AU/NZ
+              transformation signals—classified down to the module.
+            </p>
+            <div class="hero-actions" aria-label="Talent Radar actions">
+              <a class="button button-primary hero-primary" href="dashboard.html#overview">
+                Explore the radar
+                <svg class="icon" aria-hidden="true"><use href="#i-arrow-right"></use></svg>
+              </a>
+              <a class="button button-secondary" href="#method">See the method</a>
+            </div>
+
+            <dl class="hero-metrics" aria-label="Prototype coverage">
+              <div>
+                <svg class="icon" aria-hidden="true"><use href="#i-mail"></use></svg>
+                <dt>~200</dt>
+                <dd>threads indexed</dd>
+              </div>
+              <div>
+                <svg class="icon" aria-hidden="true"><use href="#i-tag"></use></svg>
+                <dt>26</dt>
+                <dd>SAP tags</dd>
+              </div>
+              <div>
+                <svg class="icon" aria-hidden="true"><use href="#i-globe"></use></svg>
+                <dt>AU + NZ</dt>
+                <dd>coverage</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="product-preview" aria-label="Preview of the Talent Radar opportunity feed">
+            <aside class="preview-sidebar" aria-label="Product preview navigation">
+              <svg class="preview-logo icon" aria-hidden="true"><use href="#i-radar"></use></svg>
+              <div class="preview-nav preview-nav-active">
+                <svg class="icon" aria-hidden="true"><use href="#i-pulse"></use></svg>
+                <span>Feed</span>
+              </div>
+              <div class="preview-nav">
+                <svg class="icon" aria-hidden="true"><use href="#i-database"></use></svg>
+                <span>Modules</span>
+              </div>
+              <div class="preview-nav">
+                <svg class="icon" aria-hidden="true"><use href="#i-user"></use></svg>
+                <span>Workstreams</span>
+              </div>
+              <div class="preview-nav">
+                <svg class="icon" aria-hidden="true"><use href="#i-bookmark"></use></svg>
+                <span>Watchlist</span>
+              </div>
+              <div class="preview-nav">
+                <svg class="icon" aria-hidden="true"><use href="#i-settings"></use></svg>
+                <span>Settings</span>
+              </div>
+            </aside>
+
+            <div class="preview-content">
+              <div class="preview-heading">
+                <strong>Opportunity feed</strong>
+              </div>
+
+              <div class="preview-toolbar">
+                <label class="preview-search">
+                  <span class="sr-only">Search the preview</span>
+                  <svg class="icon" aria-hidden="true"><use href="#i-search"></use></svg>
+                  <input type="search" placeholder="Search modules, roles, skills, locations…" tabindex="-1">
+                </label>
+                <button type="button" tabindex="-1">
+                  Filters
+                  <svg class="icon" aria-hidden="true"><use href="#i-filter"></use></svg>
+                </button>
+              </div>
+
+              <div class="preview-filters" aria-hidden="true">
+                <span>Source <svg class="icon"><use href="#i-chevron-down"></use></svg></span>
+                <span>Workstream <svg class="icon"><use href="#i-chevron-down"></use></svg></span>
+                <span>Location <svg class="icon"><use href="#i-chevron-down"></use></svg></span>
+                <span>Priority <svg class="icon"><use href="#i-chevron-down"></use></svg></span>
+              </div>
+
+              <div class="preview-feed">
+                <div class="preview-list">
+                  <article class="opportunity-card">
+                    <div class="opportunity-meta">
+                      <span class="signal signal-confirmed"><i></i>Inbox confirmed</span>
+                      <time datetime="2026-05">May 2026</time>
+                    </div>
+                    <h2>SAP ABAP Developer — Public Cloud &amp; BTP</h2>
+                    <p>DyFlex Solutions</p>
+                    <p>Sydney NSW · Remote AU/NZ</p>
+                    <div class="module-tags"><span>ABAP</span><span>BTP</span><span>S/4HANA</span></div>
+                    <p class="source-line">
+                      <svg class="icon" aria-hidden="true"><use href="#i-inbox"></use></svg>
+                      Source: SEEK alert
+                    </p>
+                  </article>
+
+                  <article class="opportunity-card">
+                    <div class="opportunity-meta">
+                      <span class="signal signal-confirmed"><i></i>Recruiter outreach</span>
+                      <time datetime="2025-03">Mar 2025</time>
+                    </div>
+                    <h2>SAP FICO Functional Consultant — Contract</h2>
+                    <p>Recruiter InMail</p>
+                    <p>Adelaide · FIFO</p>
+                    <div class="module-tags"><span>FI/CO</span><span>Functional</span></div>
+                    <p class="source-line">
+                      <svg class="icon" aria-hidden="true"><use href="#i-mail"></use></svg>
+                      Source: LinkedIn InMail
+                    </p>
+                  </article>
+
+                  <article class="opportunity-card opportunity-card-last">
+                    <div class="opportunity-meta">
+                      <span class="signal signal-confirmed"><i></i>Inbox confirmed</span>
+                      <time datetime="2026-05">May 2026</time>
+                    </div>
+                    <h2>SAP Enterprise Architect — S/4HANA</h2>
+                    <p>Private Advertiser</p>
+                    <p>Sydney NSW · Hybrid</p>
+                    <div class="module-tags"><span>Enterprise Architect</span><span>Signavio</span><span>LeanIX</span></div>
+                    <p class="source-line">
+                      <svg class="icon" aria-hidden="true"><use href="#i-inbox"></use></svg>
+                      Source: SEEK alert
+                    </p>
+                  </article>
+                </div>
+
+                <aside class="priority-preview" aria-label="Priority preview">
+                  <h2>Priority</h2>
+                  <p>Next best</p>
+                  <div class="priority-item">
+                    <strong><i class="priority-dot priority-high"></i>High day rate</strong>
+                    <span>Enterprise architecture<br>Sydney</span>
+                  </div>
+                  <div class="priority-item">
+                    <strong><i class="priority-dot priority-medium"></i>Multiple openings</strong>
+                    <span>Senior S/4HANA<br>Melbourne</span>
+                  </div>
+                  <div class="priority-item">
+                    <strong><i class="priority-dot priority-medium"></i>Remote AU/NZ</strong>
+                    <span>ABAP and BTP<br>Sydney</span>
+                  </div>
+                  <a href="dashboard.html#opportunities" tabindex="-1">
+                    View all
+                    <svg class="icon" aria-hidden="true"><use href="#i-arrow-right"></use></svg>
+                  </a>
+                </aside>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="coverage-band" id="coverage" aria-labelledby="coverage-title">
+        <div class="coverage-grid shell">
+          <div class="coverage-intro">
+            <span class="coverage-icon" aria-hidden="true">
+              <svg class="icon"><use href="#i-globe"></use></svg>
+            </span>
+            <div>
+              <p class="section-kicker">Coverage &amp; provenance</p>
+              <h2 id="coverage-title">Signals across AU/NZ.<br>Classified with clarity.</h2>
+            </div>
+          </div>
+
+          <article class="coverage-item">
+            <svg class="icon" aria-hidden="true"><use href="#i-mail"></use></svg>
+            <h3>Inbox-confirmed</h3>
+            <p>Roles and briefs from your own inbox and recruiter outreach.</p>
+          </article>
+          <article class="coverage-item">
+            <svg class="icon" aria-hidden="true"><use href="#i-radar"></use></svg>
+            <h3>Pipeline signals</h3>
+            <p>Early project starts, contract awards and public signals that indicate demand.</p>
+          </article>
+          <article class="coverage-item">
+            <svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg>
+            <h3>Module-level classification</h3>
+            <p>Every opportunity tagged down to the SAP module and workstream.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="workstreams-section" id="workstreams" aria-labelledby="workstreams-title">
+        <div class="workstreams-grid shell">
+          <div class="workstreams-copy">
+            <p class="section-kicker">SAP workstreams</p>
+            <h2 id="workstreams-title">Focus on the work that moves the needle.</h2>
+            <p>
+              SAP opportunities span three workstreams—Functional, Technical and Leadership—so
+              you can focus on the right skills, seniority and locations.
+            </p>
+            <a class="text-link" href="dashboard.html#sap-landscape">
+              View workstreams
+              <svg class="icon" aria-hidden="true"><use href="#i-arrow-right"></use></svg>
+            </a>
+          </div>
+
+          <figure class="workstreams-media">
+            <img
+              src="assets/operations-team-duotone.png"
+              alt="An operations team collaborating around monitors in a control room"
+              width="1672"
+              height="941"
+              loading="lazy"
+            >
+          </figure>
+        </div>
+      </section>
+
+      <section class="method-section" id="method" aria-labelledby="method-title">
+        <div class="method-inner shell">
+          <div class="method-heading">
+            <p class="section-kicker">How it works</p>
+            <h2 id="method-title">From signal to priority in three steps.</h2>
+          </div>
+
+          <ol class="method-steps">
+            <li>
+              <div class="step-visual">
+                <span class="step-number">01</span>
+                <svg class="icon" aria-hidden="true"><use href="#i-mail"></use></svg>
+              </div>
+              <h3>Watch</h3>
+              <p>The prototype consolidates inbox roles, recruiter outreach and public project signals across AU/NZ.</p>
+            </li>
+            <li>
+              <div class="step-visual">
+                <span class="step-number">02</span>
+                <svg class="icon" aria-hidden="true"><use href="#i-tag"></use></svg>
+              </div>
+              <h3>Classify</h3>
+              <p>Each imported signal is classified by module, workstream, seniority and location.</p>
+            </li>
+            <li>
+              <div class="step-visual">
+                <span class="step-number">03</span>
+                <svg class="icon" aria-hidden="true"><use href="#i-bookmark"></use></svg>
+              </div>
+              <h3>Prioritise</h3>
+              <p>Saved criteria and explicit priority reasons make the most relevant records easy to scan.</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="prototype-cta" aria-labelledby="prototype-title">
+        <div class="prototype-cta-inner shell">
+          <div>
+            <h2 id="prototype-title">See what’s on your radar.</h2>
+            <p>Open the prototype and explore real examples from your inbox.</p>
+          </div>
+          <div class="prototype-action">
+            <a class="button button-primary" href="dashboard.html#overview" data-confirm-prototype>
+              <span>Open the prototype</span>
+              <svg class="icon" aria-hidden="true"><use href="#i-arrow-right"></use></svg>
+            </a>
+            <p class="prototype-confirmation" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="shell">
+        <svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg>
+        <p>Internal use only. Not a production system. Data shown is a prototype snapshot.</p>
+      </div>
+    </footer>
+
+    <script src="scripts/shared.js"></script>
+    <script src="scripts/landing.js"></script>
+  </body>
+</html>

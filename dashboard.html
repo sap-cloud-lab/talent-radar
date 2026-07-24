@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Talent Radar — a light, focused view of SAP talent opportunities across Australia and New Zealand."
+    />
+    <title>Talent Radar</title>
+    <link rel="stylesheet" href="styles/dashboard.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar" aria-label="Primary navigation">
+        <a class="brand" href="#overview" aria-label="Talent Radar home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48">
+              <circle cx="24" cy="24" r="17"></circle>
+              <circle cx="24" cy="24" r="9"></circle>
+              <path d="M24 24 36 12M24 7V3M41 24h4"></path>
+              <circle class="brand-dot" cx="24" cy="24" r="3"></circle>
+            </svg>
+          </span>
+          <span>Talent Radar</span>
+        </a>
+
+        <nav class="nav-list">
+          <a class="nav-item" href="#overview" data-route-link="overview">
+            <span data-icon="home"></span><span>Home</span>
+          </a>
+          <a class="nav-item" href="#opportunities" data-route-link="opportunities">
+            <span data-icon="pulse"></span><span>Feed</span>
+          </a>
+          <a class="nav-item" href="#sap-landscape" data-route-link="sap-landscape">
+            <span data-icon="database"></span><span>SAP modules</span>
+          </a>
+          <a class="nav-item" href="#workstreams" data-route-link="workstreams">
+            <span data-icon="user"></span><span>Workstreams</span>
+          </a>
+          <a class="nav-item" href="#watchlist" data-route-link="watchlist">
+            <span data-icon="bookmark"></span><span>Watchlist</span>
+            <span class="nav-count" id="watchlist-count" aria-label="Saved jobs">0</span>
+          </a>
+          <a class="nav-item" href="#settings" data-route-link="settings">
+            <span data-icon="settings"></span><span>Settings</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-note">
+          <span class="sidebar-note-dot" aria-hidden="true"></span>
+          <div>
+            <strong>Archive mode</strong>
+            <span>May 2026 snapshot</span>
+          </div>
+        </div>
+      </aside>
+
+      <button class="mobile-menu" id="mobile-menu" type="button" aria-label="Open navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <button class="sidebar-scrim" id="sidebar-scrim" type="button" aria-label="Close navigation"></button>
+
+      <main class="main-content" id="main-content" tabindex="-1">
+        <div class="route-loading" aria-live="polite">Loading Talent Radar…</div>
+      </main>
+    </div>
+
+    <div class="toast-region" aria-live="polite" aria-atomic="false"></div>
+
+    <script src="scripts/shared.js"></script>
+    <script src="scripts/data.js"></script>
+    <script src="scripts/dashboard.js"></script>
+  </body>
+</html>
