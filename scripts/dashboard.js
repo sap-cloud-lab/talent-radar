@@ -636,30 +636,230 @@
     }).format(new Date(Date.UTC(parts[0], parts[1] - 1, parts[2] || 1)));
   }
 
-  function renderModules() {
-    const actualModules = new Map();
+  function moduleLocationSummary(jobs, limit = 3) {
+    const locations = feedRegions
+      .filter(([id]) => !["all", "australia-wide"].includes(id))
+      .map(([id, label]) => ({
+        label,
+        count: jobs.filter((job) => regionMatchesJob(job, id)).length
+      }))
+      .filter((item) => item.count)
+      .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+
+    if (!locations.length) return "Regional AU/NZ";
+    return locations
+      .slice(0, limit)
+      .map((item) => `${item.label} ${item.count}`)
+      .join(" · ");
+  }
+
+  function moduleWorkModeSummary(jobs) {
+    const counts = new Map();
+    jobs.forEach((job) => {
+      const mode = normaliseWorkMode(job.workMode);
+      counts.set(mode, (counts.get(mode) || 0) + 1);
+    });
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([mode, count]) => `${workModeLabels[mode]} ${count}`)
+      .join(" · ");
+  }
+
+  function numericRateSignals(jobs) {
+    return [
+      ...new Set(
+        jobs
+          .map((job) => job.rate)
+          .filter((rate) => rate && /\d/.test(rate) && !/flexible|competitive/i.test(rate))
+      )
+    ];
+  }
+
+  function moduleRateSummary(jobs) {
+    const rates = numericRateSignals(jobs);
+    if (!rates.length) return "Not advertised";
+    if (rates.length === 1) return rates[0];
+    return `${rates.length} disclosed · ${rates.slice(0, 2).join(" · ")}`;
+  }
+
+  function moduleIntelligence() {
+    const recentCutoff = "2026-07-10";
+    const grouped = new Map();
+
     data.jobs
       .filter((job) => job.stream === "SAP")
-      .forEach((job) => actualModules.set(job.module, (actualModules.get(job.module) || 0) + 1));
-    const classifiedCount = data.jobs.filter((job) => job.stream === "SAP" && job.module !== "Unclassified SAP").length;
-    const unclassifiedCount = actualModules.get("Unclassified SAP") || 0;
+      .forEach((job) => {
+        if (!grouped.has(job.module)) grouped.set(job.module, []);
+        grouped.get(job.module).push(job);
+      });
+
+    return [...grouped.entries()]
+      .map(([module, jobs]) => {
+        const recentCount = jobs.filter((job) => (job.firstSeen || "") >= recentCutoff).length;
+        const trend =
+          recentCount >= 3
+            ? { label: "Hot now", tone: "hot" }
+            : recentCount >= 1
+              ? { label: "New activity", tone: "new" }
+              : { label: "Steady", tone: "steady" };
+        return {
+          module,
+          jobs,
+          count: jobs.length,
+          recentCount,
+          trend,
+          score: recentCount * 3 + jobs.length,
+          group: jobs[0]?.group || "Other",
+          locations: moduleLocationSummary(jobs),
+          workModes: moduleWorkModeSummary(jobs),
+          rates: moduleRateSummary(jobs)
+        };
+      })
+      .sort((a, b) => b.count - a.count || b.recentCount - a.recentCount || a.module.localeCompare(b.module));
+  }
+
+  function renderModules() {
+    const intelligence = moduleIntelligence();
+    const actualModules = new Map(intelligence.map((item) => [item.module, item.count]));
+    const sapJobs = data.jobs.filter((job) => job.stream === "SAP");
+    const recentSapJobs = sapJobs.filter((job) => (job.firstSeen || "") >= "2026-07-10").length;
+    const rateDisclosureCount = sapJobs.filter((job) => numericRateSignals([job]).length).length;
+    const hottest = [...intelligence]
+      .sort((a, b) => b.score - a.score || b.recentCount - a.recentCount || b.count - a.count)
+      .slice(0, 3);
+    const rateExamples = sapJobs
+      .filter((job) => numericRateSignals([job]).length)
+      .sort((a, b) => (b.firstSeen || "").localeCompare(a.firstSeen || ""))
+      .slice(0, 4);
     const otherCount = data.jobs.filter((job) => job.stream !== "SAP").length;
+    const maxModuleCount = Math.max(...intelligence.map((item) => item.count), 1);
 
     return `
       <section class="page" data-page="sap-landscape">
         ${pageHeader({
           eyebrow: "SAP modules",
-          title: "Browse by SAP sub-module",
-          subtitle: "The module library explains each SAP capability and opens the current feed with the right filter.",
+          title: "SAP module market intelligence",
+          subtitle: "Compare live demand, recent momentum, locations, work arrangements and advertised rate evidence—then drill directly into the matching feed.",
           note: true
         })}
 
-        <div class="summary-strip">
-          <div class="summary-card"><strong>${data.meta.sapTaxonomyTagCount}</strong><span>SAP taxonomy tags</span></div>
-          <div class="summary-card"><strong>${classifiedCount}</strong><span>Classified live SAP roles</span></div>
-          <div class="summary-card"><strong>${unclassifiedCount}</strong><span>Roles needing module detail</span></div>
+        <div class="summary-strip module-summary-strip">
+          <div class="summary-card"><strong>${sapJobs.length}</strong><span>Live SAP opportunities</span></div>
+          <div class="summary-card"><strong>${intelligence.length}</strong><span>Modules with active demand</span></div>
+          <div class="summary-card"><strong>${recentSapJobs}</strong><span>Listings seen since 10 Jul</span></div>
+          <div class="summary-card"><strong>${rateDisclosureCount}</strong><span>Roles with numeric rate evidence</span></div>
         </div>
 
+        <div class="module-intelligence-layout">
+          <section class="market-panel demand-panel" aria-labelledby="module-demand-title">
+            <div class="market-panel-heading">
+              <div>
+                <p class="panel-kicker">Live demand ranking</p>
+                <h2 id="module-demand-title">Opportunities by module</h2>
+                <p>Ranked by current verified listings. Momentum is based on listings seen in the last 14 days.</p>
+              </div>
+              <span class="market-panel-total">${intelligence.length} active modules</span>
+            </div>
+
+            <div class="module-demand-list">
+              ${intelligence
+                .map(
+                  (item, index) => `
+                    <button class="module-demand-row" type="button" data-module-filter="${esc(item.module)}"
+                      aria-label="Open ${esc(item.module)} opportunities in the feed">
+                      <div class="module-demand-main">
+                        <span class="module-rank">${String(index + 1).padStart(2, "0")}</span>
+                        <div>
+                          <strong>${esc(item.module)}</strong>
+                          <span>${esc(item.group)} workstream</span>
+                        </div>
+                      </div>
+                      <div class="module-demand-volume">
+                        <strong>${item.count}</strong>
+                        <span>${item.count === 1 ? "role" : "roles"}</span>
+                        <i style="--demand-width:${Math.max(10, Math.round((item.count / maxModuleCount) * 100))}%"></i>
+                      </div>
+                      <span class="momentum-pill ${item.trend.tone}">
+                        ${icon("pulse")}${esc(item.trend.label)}
+                        <small>${item.recentCount} recent</small>
+                      </span>
+                      <span class="module-row-arrow">${icon("arrow-right")}</span>
+                      <div class="module-demand-facts">
+                        <span><small>Leading locations</small>${icon("location")}${esc(item.locations)}</span>
+                        <span><small>Work arrangement</small>${icon("briefcase")}${esc(item.workModes)}</span>
+                        <span><small>Advertised rate evidence</small>${icon("tag")}${esc(item.rates)}</span>
+                      </div>
+                    </button>`
+                )
+                .join("")}
+            </div>
+          </section>
+
+          <aside class="module-market-sidebar" aria-label="Module market highlights">
+            <section class="market-panel hot-modules-panel">
+              <div class="market-panel-heading compact">
+                <div>
+                  <p class="panel-kicker">Strongest momentum</p>
+                  <h2>Hot modules now</h2>
+                </div>
+              </div>
+              <div class="hot-module-list">
+                ${hottest
+                  .map(
+                    (item, index) => `
+                      <button type="button" data-module-filter="${esc(item.module)}">
+                        <span class="hot-rank">${index + 1}</span>
+                        <span><strong>${esc(item.module)}</strong><small>${item.recentCount} recent · ${item.count} live</small></span>
+                        ${icon("chevron-right")}
+                      </button>`
+                  )
+                  .join("")}
+              </div>
+            </section>
+
+            <section class="market-panel rate-panel">
+              <div class="market-panel-heading compact">
+                <div>
+                  <p class="panel-kicker">Observed—not estimated</p>
+                  <h2>Advertised rate signals</h2>
+                </div>
+              </div>
+              ${
+                rateExamples.length
+                  ? `<div class="rate-signal-list">
+                      ${rateExamples
+                        .map(
+                          (job) => `
+                            <button type="button" data-module-filter="${esc(job.module)}">
+                              <span><strong>${esc(job.module)}</strong><small>${esc(job.title)}</small></span>
+                              <b>${esc(job.rate)}</b>
+                            </button>`
+                        )
+                        .join("")}
+                    </div>`
+                  : `<p class="market-empty-copy">No numeric rates are disclosed in this snapshot.</p>`
+              }
+              <p class="method-note">${icon("info")}Hourly and daily figures are shown exactly as advertised and are not blended into a false average.</p>
+            </section>
+
+            <section class="market-panel methodology-panel">
+              <span class="methodology-icon">${icon("calendar")}</span>
+              <div>
+                <h2>Snapshot methodology</h2>
+                <p>“Hot” means at least three listings were first seen since 10 July. This is current-market momentum, not a long-term historical trend.</p>
+              </div>
+            </section>
+          </aside>
+        </div>
+
+        <div class="taxonomy-heading">
+          <div>
+            <p class="panel-kicker">Complete classification</p>
+            <h2>Browse the ${data.meta.sapTaxonomyTagCount}-module taxonomy</h2>
+          </div>
+          <p>Modules without a count have no verified opportunities in this snapshot.</p>
+        </div>
         <div class="module-groups">
           ${data.sapGroups.map((group) => renderModuleGroup(group, actualModules)).join("")}
         </div>

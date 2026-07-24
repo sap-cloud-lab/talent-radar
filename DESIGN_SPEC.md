@@ -41,9 +41,18 @@
 - Every card includes verification date, posting age, location, tags, work arrangement and watchlist control
 - Application actions open the exact verified public listing
 
+## SAP module intelligence
+
+- Rank active SAP modules by verified live-role count
+- Show current momentum using listings first seen during the last 14 days
+- Identify the three hottest modules from live count and recent activity
+- Show leading locations and work-arrangement counts for every active module
+- Show numeric hourly or daily rates exactly as advertised; never blend incompatible rate types
+- Every module row and highlight drills into the Feed with that module selected
+- Retain the full 26-tag taxonomy beneath the live intelligence view
+
 ## Supporting views
 
-- **SAP modules:** functional, technical and leadership taxonomies with current role counts
 - **Workstreams:** broad capability drill-down into the same Feed
 - **Watchlist:** saved job records only
 - **Settings:** source status, verification details and local watchlist controls
