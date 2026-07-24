@@ -45,7 +45,7 @@
 
     prototypeLink.setAttribute("aria-busy", "true");
     if (label) label.textContent = "Opening prototype…";
-    if (confirmation) confirmation.textContent = "May 2026 snapshot ready.";
+    if (confirmation) confirmation.textContent = "13 verified listings ready.";
 
     window.setTimeout(() => {
       window.location.assign(destination);

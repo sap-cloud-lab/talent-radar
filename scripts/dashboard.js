@@ -51,10 +51,10 @@
     {
       id: "sydney",
       label: "Sydney",
-      short: "SAP Enterprise Architect",
-      detail: "SAP Enterprise Architect — S/4HANA, Signavio & LeanIX",
-      rate: "$1,300–1,600/day",
-      copy: "A high-rate leadership signal from the May 2026 inbox snapshot.",
+      short: "SAP Ariba Consultant",
+      detail: "SAP Ariba Consultant at IBM",
+      rate: "Hybrid · Full time",
+      copy: "Current sourcing and procurement opportunity spanning Sydney and Melbourne.",
       icon: "user",
       tone: "coral",
       marker: { x: 496, y: 310, labelX: 510, labelY: 292, width: 76 }
@@ -62,21 +62,21 @@
     {
       id: "melbourne",
       label: "Melbourne",
-      short: "Senior SAP S/4HANA Consultants",
-      detail: "Multiple Senior SAP S/4HANA Consultants",
-      rate: "Multiple openings",
-      copy: "A multi-role S/4HANA signal in Melbourne; individual sub-modules were not stated.",
+      short: "SAP Solution Architect",
+      detail: "SAP Solution Architect at EY",
+      rate: "Hybrid · Full time",
+      copy: "Current S/4HANA transformation leadership role across Melbourne, Sydney and Canberra.",
       icon: "user",
       tone: "orange",
       marker: { x: 430, y: 358, labelX: 318, labelY: 340, width: 102 }
     },
     {
       id: "remote",
-      label: "Remote AU/NZ",
-      short: "SAP ABAP Developer",
-      detail: "SAP ABAP Developer — Public Cloud & BTP",
-      rate: "Remote AU/NZ",
-      copy: "The only source record explicitly marked remote, covering Australia and New Zealand.",
+      label: "Remote Australia",
+      short: "SAP FICO Consultant",
+      detail: "SAP FICO Consultant at COSOL",
+      rate: "Fully remote",
+      copy: "Verified remote contract available anywhere in Australia.",
       icon: "globe",
       tone: "teal",
       marker: { x: 737, y: 366, labelX: 608, labelY: 348, width: 123 }
@@ -160,16 +160,15 @@
 
     const location = (job.location || "").trim().toLowerCase();
     const australiaWide = /^(all )?australia$/.test(location);
-    const regionalRemote =
+    const australiaRemote =
       normaliseWorkMode(job.workMode) === "remote" &&
-      (job.region === "AU/NZ" || location.includes("au/nz"));
+      (job.region === "AU" || location.includes("australia"));
 
-    if (region === "australia-wide") return australiaWide || regionalRemote;
+    if (region === "australia-wide") return australiaWide || australiaRemote;
     if (region === "new-zealand") {
       return (
         job.region === "NZ" ||
-        /\b(new zealand|auckland|wellington|christchurch)\b/.test(location) ||
-        regionalRemote
+        /\b(new zealand|auckland|wellington|christchurch)\b/.test(location)
       );
     }
 
@@ -182,7 +181,7 @@
       perth: /\bperth\b/
     };
     const pattern = cityPatterns[region];
-    return Boolean(pattern && (pattern.test(location) || australiaWide || regionalRemote));
+    return Boolean(pattern && (pattern.test(location) || australiaWide || australiaRemote));
   }
 
   function readWatchlist() {
@@ -220,14 +219,14 @@
   }
 
   function snapshot() {
-    return `<span class="snapshot">${icon("calendar")}<span>May 2026 snapshot</span></span>`;
+    return `<span class="snapshot">${icon("calendar")}<span>Checked 24 Jul 2026</span></span>`;
   }
 
   function archiveNote() {
     return `
       <div class="archive-note">
-        ${icon("info")}
-        <span><strong>Historical archive:</strong> inbox records are confirmed, but current availability is unverified.</span>
+        ${icon("shield")}
+        <span><strong>Application checked:</strong> every role links to a public listing that showed Apply on 24 Jul 2026.</span>
       </div>`;
   }
 
@@ -347,7 +346,7 @@
                 : "#2874ad";
         return `
           <g class="map-marker ${selectedId === item.id ? "active" : ""}" role="button" tabindex="0"
-            aria-label="Open ${esc(item.label)} in the feed, ${count} SAP archive ${count === 1 ? "record" : "records"}"
+            aria-label="Open ${esc(item.label)} in the feed, ${count} verified SAP ${count === 1 ? "role" : "roles"}"
             data-map-region="${item.region}">
             <line x1="${x}" y1="${y}" x2="${lineX}" y2="${labelY + 14}"></line>
             <circle cx="${x}" cy="${y}" r="8" fill="${color}"></circle>
@@ -402,7 +401,7 @@
         ${pageHeader({
           eyebrow: "Opportunity feed",
           title: "Every opportunity, in sequence",
-          subtitle: "Filter the archive by SAP sub-module, work arrangement, source, or non-SAP opportunities.",
+          subtitle: "Current public listings, ordered newest first. Filter by SAP sub-module, work arrangement, region or source.",
           note: true
         })}
 
@@ -495,6 +494,7 @@
   function filteredJobs() {
     const query = state.feed.q.trim().toLowerCase();
     return data.jobs
+      .filter((job) => job.applyStatus === "open" && job.sourceUrl)
       .map((job, originalIndex) => ({ job, originalIndex }))
       .sort((a, b) => b.job.firstSeen.localeCompare(a.job.firstSeen) || a.originalIndex - b.originalIndex)
       .map(({ job }) => job)
@@ -538,14 +538,14 @@
       state.feed.region === "all"
         ? ""
         : state.feed.region === "new-zealand"
-          ? " · New Zealand and remote AU/NZ records"
+          ? " · New Zealand roles"
           : state.feed.region === "australia-wide"
-            ? " · Australia-wide and remote AU/NZ records"
-            : ` · ${selectedRegion ? selectedRegion[1] : "Selected region"}, Australia-wide and remote AU/NZ records`;
+            ? " · Australia-wide roles"
+            : ` · ${selectedRegion ? selectedRegion[1] : "Selected region"} roles`;
     return `
       <div class="feed-summary">
         <div><strong>${jobs.length} ${jobs.length === 1 ? "opportunity" : "opportunities"}</strong>
-          <span>${regionScope} · newest source record first</span></div>
+          <span>${regionScope} · newest public listing first</span></div>
         <button class="clear-filters" type="button" data-clear-filters>Clear filters</button>
       </div>
       ${
@@ -565,17 +565,17 @@
       <article class="job-card ${mode === "remote" ? "remote" : ""}" data-job-id="${esc(job.id)}">
         <div>
           <div class="job-meta-row">
-            <span class="job-index">Record ${String(index).padStart(2, "0")}</span>
+            <span class="job-index">Opportunity ${String(index).padStart(2, "0")}</span>
             <span class="badge ${mode}">${icon(modeIcon)}${esc(workModeLabels[mode])}</span>
-            <span class="badge archive">${icon("clock")}Availability unverified</span>
+            <span class="badge archive">${icon("shield")}Apply link verified</span>
             ${job.stream === "Other" ? `<span class="badge onsite">All other jobs</span>` : ""}
           </div>
           <h2>${esc(job.title)}</h2>
           <p class="job-company">${esc(job.company)}</p>
           <div class="job-facts">
             <span class="job-fact">${icon("location")}${esc(job.location)}</span>
-            <span class="job-fact">${icon("calendar")}${esc(displayDate)}</span>
-            <span class="job-fact">${icon("inbox")}${esc(job.source)}</span>
+            <span class="job-fact">${icon("calendar")}${esc(job.postedLabel || displayDate)}</span>
+            <span class="job-fact">${icon("external")}${esc(job.source)}</span>
           </div>
           <p class="job-summary">${esc(job.summary)}</p>
           <div class="job-tags">
@@ -591,7 +591,7 @@
           <button class="secondary-action ${saved ? "saved" : ""}" type="button" data-watch-job="${esc(job.id)}">
             ${icon("bookmark")}${saved ? "Saved to watchlist" : "Save to watchlist"}
           </button>
-          <p class="source-caveat">Direct listing URL was not included in the archive.</p>
+          <p class="source-caveat">Application page checked ${esc(formatRecordDate(job.verifiedAt))}.</p>
         </div>
       </article>`;
   }
@@ -606,6 +606,12 @@
   }
 
   function sourceLink(job) {
+    if (job.sourceUrl) {
+      return {
+        label: "View & apply",
+        href: job.sourceUrl
+      };
+    }
     const keywords = encodeURIComponent(job.title.replace(/\(saved-search.*?\)/gi, "").trim());
     const location = encodeURIComponent(job.location || "Australia");
     if (job.source.toLowerCase().includes("linkedin")) {
@@ -621,11 +627,13 @@
   }
 
   function formatRecordDate(value) {
-    if (!/^\d{4}-\d{2}$/.test(value || "")) return "Date not stated";
-    const [year, month] = value.split("-").map(Number);
-    return new Intl.DateTimeFormat("en-AU", { month: "short", year: "numeric" }).format(
-      new Date(Date.UTC(year, month - 1, 1))
-    );
+    if (!/^\d{4}-\d{2}(?:-\d{2})?$/.test(value || "")) return "Date not stated";
+    const parts = value.split("-").map(Number);
+    return new Intl.DateTimeFormat("en-AU", {
+      day: parts[2] ? "numeric" : undefined,
+      month: "short",
+      year: "numeric"
+    }).format(new Date(Date.UTC(parts[0], parts[1] - 1, parts[2] || 1)));
   }
 
   function renderModules() {
@@ -642,14 +650,14 @@
         ${pageHeader({
           eyebrow: "SAP modules",
           title: "Browse by SAP sub-module",
-          subtitle: "The module library explains what “SAP modules” means and opens the feed with the right filter.",
+          subtitle: "The module library explains each SAP capability and opens the current feed with the right filter.",
           note: true
         })}
 
         <div class="summary-strip">
           <div class="summary-card"><strong>${data.meta.sapTaxonomyTagCount}</strong><span>SAP taxonomy tags</span></div>
-          <div class="summary-card"><strong>${classifiedCount}</strong><span>Classified SAP archive records</span></div>
-          <div class="summary-card"><strong>${unclassifiedCount}</strong><span>SAP records needing module detail</span></div>
+          <div class="summary-card"><strong>${classifiedCount}</strong><span>Classified live SAP roles</span></div>
+          <div class="summary-card"><strong>${unclassifiedCount}</strong><span>Roles needing module detail</span></div>
         </div>
 
         <div class="module-groups">
@@ -659,7 +667,7 @@
         <div class="other-jobs-card">
           <div>
             <h2>All other jobs</h2>
-            <p>${otherCount} non-SAP ERP opportunity in the current archive, kept separate from SAP module filters.</p>
+            <p>${otherCount} non-SAP opportunity in the current verified feed, kept separate from SAP module filters.</p>
           </div>
           <button class="text-link" type="button" data-category-filter="other">View all other jobs ${icon("arrow-right")}</button>
         </div>
@@ -673,7 +681,7 @@
       <article class="module-group">
         <div class="module-group-header">
           <span class="stream-icon ${group.id}">${icon(iconName)}</span>
-          <div><h2>${esc(group.name)}</h2><span>${count} matching archive ${count === 1 ? "record" : "records"}</span></div>
+          <div><h2>${esc(group.name)}</h2><span>${count} matching live ${count === 1 ? "role" : "roles"}</span></div>
         </div>
         <div class="module-list">
           ${group.modules
@@ -768,7 +776,7 @@
         ${pageHeader({
           eyebrow: "Watchlist",
           title: "Saved opportunities",
-          subtitle: "Keep the archive records you want to revisit in one focused list.",
+          subtitle: "Keep the current opportunities you want to revisit in one focused list.",
           note: true
         })}
         ${
@@ -804,18 +812,18 @@
         ${pageHeader({
           eyebrow: "Settings",
           title: "Data and preferences",
-          subtitle: "Understand where the archive came from and manage data stored in this browser."
+          subtitle: "See how current listings were checked and manage data stored in this browser."
         })}
         <div class="settings-grid">
           <article class="settings-card">
             <h2>Source connections</h2>
-            <p>No live scraper or recurring importer is represented. The current dashboard uses supplied inbox records.</p>
+            <p>Only direct public job listings are included. Email alerts, recruiter InMail and historical inbox records are excluded.</p>
             ${sourceRows
               .map(
                 (source) => `
                   <div class="source-row">
                     <div><strong>${esc(source.name)}</strong><span>${esc(source.ingestionMethod)}</span></div>
-                    <span class="status-pill">${source.id === "adzuna" ? "Not connected" : "Historical only"}</span>
+                    <span class="status-pill">Verified 24 Jul</span>
                   </div>`
               )
               .join("")}
@@ -825,9 +833,9 @@
             <h2>Local preferences</h2>
             <p>Watchlist choices stay on this device and are not synced externally.</p>
             <div class="setting-list">
-              <div class="setting-line"><span>Snapshot</span><strong>May 2026</strong></div>
+              <div class="setting-line"><span>Last checked</span><strong>24 Jul 2026</strong></div>
               <div class="setting-line"><span>Coverage</span><strong>Australia & New Zealand</strong></div>
-              <div class="setting-line"><span>Archive records</span><strong>${data.jobs.length}</strong></div>
+              <div class="setting-line"><span>Open listings</span><strong>${data.jobs.length}</strong></div>
               <div class="setting-line"><span>Saved roles</span><strong>${state.watchlist.size}</strong></div>
             </div>
             <button class="danger-button" type="button" data-clear-watchlist>Clear watchlist</button>

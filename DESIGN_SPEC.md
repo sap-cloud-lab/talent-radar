@@ -4,7 +4,7 @@
 
 - One consistent light shell across every route; no dark-blue page treatment
 - Cool-white canvas, true-white surfaces, navy text, soft mineral-blue navigation
-- Green reserved for remote opportunities, amber for archive/provenance notes, coral for the strongest Sydney signal
+- Green reserved for remote opportunities, amber for verification notes, coral for the strongest Sydney signal
 - Thin borders, restrained shadows, rounded cards and outline icons
 - Spacious desktop composition with a 268px sidebar; drawer navigation below 760px
 
@@ -22,39 +22,39 @@
 ## Home
 
 - Heading: `Regional opportunity view`
-- May 2026 snapshot label
+- 24 July 2026 verification label
 - Region tabs: All regions, Sydney, Melbourne, Remote
 - AU/NZ map with Perth, Adelaide, Melbourne, Canberra, Sydney, Brisbane and New Zealand markers
 - Map markers drill directly into the Feed with the selected regional scope applied
 - Market spotlight accordion
-- 17 opportunity records, 3 hot market signals and 26 SAP taxonomy tags
+- 13 verified opportunities, 3 hot market signals and 26 SAP taxonomy tags
 - Direct drill-down to the Feed
 
 ## Feed
 
-- All records displayed in newest-source-record order
+- All roles displayed in newest-public-listing order
 - Search by role, company, location, module or skill
 - Category controls: All opportunities, SAP jobs, All other jobs
 - SAP sub-module, workstream and source filters
 - Work-arrangement controls: Remote, Hybrid, On-site, FIFO and Not stated
 - Remote-only records use a green leading rail and pale-green card treatment
-- Every card includes provenance, absolute record date, location, tags, work arrangement and watchlist control
-- SEEK / LinkedIn actions open a relevant search because direct archive listing URLs were not supplied
+- Every card includes verification date, posting age, location, tags, work arrangement and watchlist control
+- SEEK / LinkedIn actions open the exact public listing
 
 ## Supporting views
 
-- **SAP modules:** functional, technical and leadership taxonomies with archive counts
+- **SAP modules:** functional, technical and leadership taxonomies with current role counts
 - **Workstreams:** broad capability drill-down into the same Feed
 - **Watchlist:** saved job records only
-- **Settings:** source status, snapshot details and local watchlist controls
+- **Settings:** source status, verification details and local watchlist controls
 
 ## Data language
 
-- Always show `Historical archive` and `current availability is unverified`
-- Never present May 2026 records as live July 2026 vacancies
+- Show `Apply link verified` and the exact date the public application page was checked
+- Exclude email alerts, recruiter messages, historical inbox records and closed listings
 - Use `Not stated` when a source did not specify a work arrangement
 - Use `All other jobs` for non-SAP opportunities
-- Never invent a direct listing URL
+- Link only to the exact public listing URL
 
 ## Responsive behaviour
 
