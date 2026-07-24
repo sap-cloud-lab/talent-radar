@@ -4143,32 +4143,36 @@ button.secondary-action {
   }
 
   .home-page .region-map {
-    inset: auto -16% auto -16%;
+    inset: auto auto auto 50%;
     top: 49%;
-    width: 132%;
+    width: 134%;
     height: auto;
-    transform: translateY(-48%);
+    transform: translate(-47%, -48%);
+  }
+
+  .home-page .region-map .map-new-zealand {
+    transform: translateX(-58px);
   }
 
   .home-page .mobile-map-labels {
-    inset: auto -9% auto -9%;
+    inset: auto auto auto 50%;
     top: 49%;
-    width: 118%;
+    width: 122%;
     height: auto;
     aspect-ratio: 850 / 520;
-    transform: translateY(-48%);
+    transform: translate(-47%, -48%);
   }
 
   .home-page .mobile-map-marker {
-    min-height: 24px;
+    min-height: 28px;
     gap: 4px;
     border-radius: 8px;
     padding: 0 6px;
-    font-size: 8px;
+    font-size: 9px;
   }
 
   .home-page .mobile-map-marker strong {
-    font-size: 9px;
+    font-size: 10px;
   }
 
   .home-page .home-map-action {

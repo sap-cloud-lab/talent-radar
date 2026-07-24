@@ -480,7 +480,7 @@
       canberra: [53, 65],
       sydney: [58, 54],
       brisbane: [60, 39],
-      "new-zealand": [69, 77],
+      "new-zealand": [64, 77],
       "australia-wide": [17, 43]
     };
     const mobileMarkers = mapRegions
