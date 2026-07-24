@@ -75,7 +75,9 @@
 - Installable through Safari **Add to Home Screen** and Android Chrome **Install app**
 - Standalone app display with Talent Radar icon, portrait orientation and cached application shell
 - Persistent Home, Feed, SAP, Saved and Profile navigation
-- Home remains a filterable AU/NZ map with no individual job promotion
+- Home is a fixed, map-first viewport: compact controls, result count and the full AU/NZ map remain visible together without scrolling
+- Filter changes update the count and map in place; Permanent, Contract, On-site, Hybrid and Remote controls use the compact mobile treatment
+- Home contains no individual job promotion
 - Feed results appear before the detailed filter panel on mobile
 - Job actions stack under the role summary and `Apply with AI` opens as a bottom sheet
 - No horizontal page overflow at 320px

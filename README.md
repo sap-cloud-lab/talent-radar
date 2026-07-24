@@ -26,7 +26,7 @@ Open `index.html`, then choose **Open Talent Radar**. For direct access, open `d
 
 - **iPhone / iPad:** open the published site in Safari, use **Share**, then choose **Add to Home Screen**.
 - **Android:** open the site in Chrome, open the browser menu, then choose **Install app** or **Add to Home screen**.
-- The PWA launches in a standalone mobile shell with a compact top bar and persistent bottom navigation.
+- The PWA launches in a standalone mobile shell with a compact top bar, persistent bottom navigation and a map-first Home screen that updates without scrolling.
 - The current **Apply with AI** sheet previews the supervised workflow and opens the verified application page. Automated form completion requires the secure profile vault and application-agent backend planned for the next build.
 
 ## Data boundary

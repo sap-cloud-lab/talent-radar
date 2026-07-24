@@ -3440,21 +3440,21 @@ button.secondary-action {
     z-index: 25;
     inset: 0 0 auto;
     display: flex;
-    min-height: calc(72px + env(safe-area-inset-top));
+    min-height: calc(58px + env(safe-area-inset-top));
     align-items: flex-end;
     justify-content: space-between;
     border-bottom: 1px solid rgba(217, 227, 236, 0.72);
     background: rgba(250, 253, 255, 0.92);
-    padding: env(safe-area-inset-top) 20px 12px;
+    padding: env(safe-area-inset-top) 16px 8px;
     backdrop-filter: blur(18px);
   }
 
   .mobile-brand {
     display: inline-flex;
     align-items: center;
-    gap: 9px;
+    gap: 7px;
     color: var(--blue-deep);
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 740;
     letter-spacing: -0.025em;
     text-decoration: none;
@@ -3462,20 +3462,20 @@ button.secondary-action {
 
   .mobile-brand .brand-mark,
   .mobile-brand .brand-mark svg {
-    width: 40px;
-    height: 40px;
+    width: 34px;
+    height: 34px;
   }
 
   .mobile-profile {
     display: grid;
-    width: 40px;
-    height: 40px;
+    width: 34px;
+    height: 34px;
     place-items: center;
     border: 2px solid #fff;
     border-radius: 50%;
     background: linear-gradient(145deg, #1776bd, #064a80);
     color: #fff;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 760;
     text-decoration: none;
     box-shadow: 0 5px 14px rgba(7, 90, 156, 0.2);
@@ -3489,7 +3489,7 @@ button.secondary-action {
     grid-template-columns: repeat(5, 1fr);
     border-top: 1px solid rgba(217, 227, 236, 0.9);
     background: rgba(255, 255, 255, 0.96);
-    padding: 8px 6px calc(7px + env(safe-area-inset-bottom));
+    padding: 4px 6px calc(4px + env(safe-area-inset-bottom));
     backdrop-filter: blur(18px);
   }
 
@@ -3497,16 +3497,16 @@ button.secondary-action {
     display: grid;
     min-width: 0;
     justify-items: center;
-    gap: 3px;
-    padding: 4px 2px;
+    gap: 2px;
+    padding: 3px 2px;
     color: #65778a;
-    font-size: 10px;
+    font-size: 9px;
     text-decoration: none;
   }
 
   .mobile-bottom-nav a .icon {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
   }
 
   .mobile-bottom-nav a.active {
@@ -3519,7 +3519,7 @@ button.secondary-action {
   }
 
   .page {
-    padding: calc(94px + env(safe-area-inset-top)) 18px calc(92px + env(safe-area-inset-bottom));
+    padding: calc(76px + env(safe-area-inset-top)) 16px calc(72px + env(safe-area-inset-bottom));
   }
 
   .page-header {
@@ -3583,7 +3583,7 @@ button.secondary-action {
   }
 
   .page-title {
-    font-size: 32px;
+    font-size: 29px;
   }
 
   .page-subtitle {
@@ -3748,6 +3748,156 @@ button.secondary-action {
 
   .map-marker-label text {
     font-size: 13px;
+  }
+
+  .home-page {
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+    padding: calc(66px + env(safe-area-inset-top)) 12px calc(58px + env(safe-area-inset-bottom));
+  }
+
+  .home-page .page-header {
+    margin-bottom: 7px;
+  }
+
+  .home-page .page-title {
+    font-size: 25px;
+    line-height: 1;
+  }
+
+  .home-page .page-subtitle {
+    display: none;
+  }
+
+  .home-page .map-filter-bar {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(96px, 0.75fr) minmax(150px, 1.4fr) 38px;
+    gap: 5px 6px;
+  }
+
+  .home-page .map-region-select {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .home-page .map-filter-group:not(.work-mode) {
+    grid-column: 2 / 4;
+    grid-row: 1;
+  }
+
+  .home-page .map-filter-group.work-mode {
+    grid-column: 1 / 3;
+    grid-row: 2;
+  }
+
+  .home-page .map-filter-reset {
+    grid-column: 3;
+    grid-row: 2;
+    min-height: 31px;
+    align-self: end;
+    justify-self: stretch;
+    margin: 0;
+    padding: 0 2px;
+    font-size: 9px;
+  }
+
+  .home-page .map-region-select,
+  .home-page .map-filter-group {
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .home-page .map-region-select > span,
+  .home-page .map-filter-group > span {
+    font-size: 7px;
+    line-height: 1.1;
+    letter-spacing: 0.08em;
+  }
+
+  .home-page .map-region-select select {
+    min-width: 0;
+    min-height: 31px;
+    height: 31px;
+    border-radius: 8px;
+    padding: 0 21px 0 8px;
+    font-size: 10px;
+  }
+
+  .home-page .map-filter-group > div {
+    min-height: 31px;
+    border-radius: 8px;
+  }
+
+  .home-page .map-filter-group button {
+    min-height: 30px;
+    padding: 0 4px;
+    font-size: 9px;
+    line-height: 1;
+  }
+
+  .home-page .explorer-grid {
+    min-height: 0;
+    margin-top: 2px;
+  }
+
+  .home-page .map-panel {
+    min-height: 0;
+  }
+
+  .home-page .opportunity-count {
+    top: 3px;
+    gap: 1px;
+  }
+
+  .home-page .opportunity-count > div {
+    gap: 6px;
+  }
+
+  .home-page .opportunity-count strong {
+    font-size: 35px;
+  }
+
+  .home-page .opportunity-count span {
+    font-size: 11px;
+  }
+
+  .home-page .opportunity-count small {
+    font-size: 8px;
+  }
+
+  .home-page .map-glow {
+    inset: 26px -8% -5px -8%;
+  }
+
+  .home-page .region-map {
+    inset: auto -13% auto -13%;
+    top: 52%;
+    width: 126%;
+    height: auto;
+    transform: translateY(-48%);
+  }
+
+  .home-page .mobile-map-labels {
+    inset: auto -7% auto -7%;
+    top: 52%;
+    width: 114%;
+    height: auto;
+    aspect-ratio: 850 / 520;
+    transform: translateY(-48%);
+  }
+
+  .home-page .mobile-map-marker {
+    min-height: 24px;
+    gap: 4px;
+    border-radius: 8px;
+    padding: 0 6px;
+    font-size: 8px;
+  }
+
+  .home-page .mobile-map-marker strong {
+    font-size: 9px;
   }
 
   .home-footer {

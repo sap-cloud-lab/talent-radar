@@ -448,7 +448,7 @@
       })
       .join("");
     const mobilePositions = {
-      perth: [1, 55],
+      perth: [7, 55],
       adelaide: [27, 60],
       melbourne: [36, 74],
       canberra: [53, 65],
